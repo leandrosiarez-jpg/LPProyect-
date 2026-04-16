@@ -1,0 +1,3 @@
+- **Definición técnica**: Conjunto de una dirección IP y un puerto.
+- **Definición conceptual**: Comunicación entre personas o individuos en tiempo real en una misma red.
+- **Relación DNS**: El DNS convierte este valor numérico en palabras para facilitar la navegación.
