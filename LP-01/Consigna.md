@@ -1,0 +1,19 @@
+---
+titulo: Anaisis de vulnerabilidades
+fecha: 2026-04-22
+etiqueas: [markdown, yami, tutorial]
+borrrador: falso
+---
+Consgina Relacionada: [LP-xx] [LP-xx]
+
+Consigna activa: Tu proyecto, si te parece bien, puede estar enfocado en la investigación de los conceptos de ciberseguridad aplicado al análisis de vulnerabilidades en las implicancias de los proyectos de tus compañeros 
+
+Debo de enfocarme en la investigación sobre los conceptos de la cybersecurity aplicando al momento una análisis sobre las vulnerabilidades que rodean los proyectos de mis compañeros. Se debe tener en cuenta el comportamiento de etica.  
+
+El enfoque del hacking etico o mejor llamado (White Hat). Trata de ayudar a las empresas a prevenir y evitar riesgos de brechas de seguridad. además de reforzar su confianza con sus potenciales clientes incluido los socios comerciales.
+
+Demuestran una importancia  enla practica para demostrar la evidente consecuencias de posibles ataques y como mejorar su defensas. Para evitar significativas perdidas en la finanza y daño de la reputació. La relación con la etica y el ciberdelito se puede distinguir por las acciones legitimas en el ambito digital.
+
+
+
+Tambien hay que tener en cuenta que existe limitaciónes donde puede llegar con el hacking etico. Si bien mejora de gran manera la seguridad de la información esta misma no garantiza sobre la etección de todas sus vulnerabilidades y puede así crear una dependencia de manera excesiva en los testers.
