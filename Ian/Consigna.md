@@ -12,6 +12,8 @@ Debo de enfocarme en la investigación sobre los conceptos de la cybersecurity a
 
 El enfoque del hacking etico o mejor llamado (White Hat). Trata de ayudar a las empresas a prevenir y evitar riesgos de brechas de seguridad. además de reforzar su confianza con sus potenciales clientes incluido los socios comerciales.
 
-Demuestran una importancia  enla practica para demostrar la evidente consecuencias de posibles ataques y como mejorar su defensas. Para evitar significativas perdidas en la finanza y daño de la reputació. La relación con la etica y el ciberdelito se puede distinguir por las acciones legitimas en el ambito digital. 
+Demuestran una importancia  enla practica para demostrar la evidente consecuencias de posibles ataques y como mejorar su defensas. Para evitar significativas perdidas en la finanza y daño de la reputació. La relación con la etica y el ciberdelito se puede distinguir por las acciones legitimas en el ambito digital.
+
+
 
 Tambien hay que tener en cuenta que existe limitaciónes donde puede llegar con el hacking etico. Si bien mejora de gran manera la seguridad de la información esta misma no garantiza sobre la etección de todas sus vulnerabilidades y puede así crear una dependencia de manera excesiva en los testers.
