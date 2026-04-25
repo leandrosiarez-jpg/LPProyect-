@@ -10,6 +10,6 @@ mundialmente conocidas **_(Amper, Voltaje, Ohmios)_**
 Uno puede llegar a preguntarse: _¿que tiene que ver todo esto con redes?_ 
 Es una pregunta valida, pero al razonar que cualquier dispositivo usa electricidad (*_DC_*) nos respondemos solos\
 He aqui la relacion:
-[test](MAIN_VAULT/Endpoint.md)
+[test](../../MAIN_VAULT/Endpoint.md)
 + dispositivo principal de red -> router
 + funcionamiento de router -> manejo de red lan
