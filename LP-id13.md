@@ -2,7 +2,6 @@
 titulo: Analisis Sistemico y UML aplicado al Aula
 fecha: 2026-04-27
 etiquetas: [uml, analisis_sistemico, aula, modelado]
-borrador: false
 ---
 
 # Analisis Sistemico y UML aplicado al manejo de informacion en el aula
