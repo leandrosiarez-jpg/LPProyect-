@@ -1,4 +1,4 @@
-# RedSegura: Simulador de Redes y Seguridad 🌐🛡️
+# RedSegura: Simulador de Redes y Seguridad
 
 **RedSegura** es una Single Page Application (SPA) interactiva diseñada para visualizar el flujo de datos en una red, el comportamiento de los sistemas bajo carga concurrente y la efectividad de las medidas de ciberseguridad ante ataques comunes.
 
@@ -71,7 +71,7 @@ El proyecto está construido puramente con tecnologías web estándar para facil
 
 ---
 
-## 🚀 Cómo ejecutarlo
+## Cómo ejecutarlo
 1. Clona este repositorio.
 2. Abre el archivo `index.html` en tu navegador preferido.
 3. ¡Empieza a enviar paquetes y a defender tu red!
