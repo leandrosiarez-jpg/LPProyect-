@@ -5,37 +5,40 @@
 
 ¿Qué es un cliente y un servidor en redes?
 
-Nombre del Proyecto: "RedSegura"
-La idea es crear una aplicación web de una sola página (SPA) que visualice cómo viajan los datos y qué pasa cuando un "atacante" interviene.
-¿Qué es Cliente y Servidor? (El Corazón del Proyecto)
-En tu interfaz, puedes representar gráficamente un Cliente (un icono de laptop) y un Servidor (un icono de torre de datos).
-Funcionalidad: Crea un formulario simple en el "Cliente". Al hacer clic en "Enviar", usa una animación de CSS para mostrar un sobre (paquete de datos) viajando hacia el "Servidor".
-Concepto: El Cliente es quien solicita el recurso (tu navegador) y el Servidor es quien lo entrega (donde reside la lógica).
-Concurrencia: Varios usuarios al mismo tiempo
-Para simular un sistema en red que soporte múltiples usuarios:
-Funcionalidad: Añade un botón que diga "Simular 100 usuarios". Al activarlo, muestra múltiples "sobres" viajando al mismo tiempo hacia el servidor.
-Defensa (Lógica de programación): Implementa un contador en JavaScript que limite las peticiones. Si el servidor recibe más de 5 peticiones por segundo, cambia el color del servidor a rojo (Saturación) y muestra un mensaje de "Balanceador de carga activado" para explicar cómo se gestiona el tráfico real.
-Hacking Ético y Defensa
-Introduce una sección de "Modo Ataque":
-El Ataque: Un botón de "Ataque de Fuerza Bruta" o "Inyección de Código". Verás cómo un tercer ícono (el Hacker) intenta interceptar el "sobre" que viaja del cliente al servidor.
-La Metodología: Puedes incluir un pequeño panel lateral que explique las fases mientras ocurre la animación:
-Reconocimiento (escanear puertos).
-Escaneo (buscar debilidades).
-Acceso (el ataque).
-La Defensa: Un interruptor de "Activar Firewall" o "Cifrado SSL". Si está activo, el ataque del hacker falla y el sobre llega al servidor de forma segura (cambiando el color del sobre, por ejemplo).
-Estructura Técnica Sugerida
-Componente
-Tecnología
-Función
-Interfaz
-HTML5
-Crear los contenedores para el Cliente, el Hacker y el Servidor.
-Estilos
-CSS3
-Usar flexbox para el diseño y @keyframes para las animaciones de los paquetes de datos.
-Lógica
-JavaScript
-Manejar los eventos de los botones, los temporizadores para la concurrencia y los validadores de "seguridad".
+Proyecto: "RedSegura"
+Idea: hacer una SPA que muestre cómo viajan los datos y qué pasa si un atacante interviene.
+
+Cliente y servidor (base del proyecto)
+En la interfaz se puede mostrar un cliente (laptop) y un servidor (torre).
+Un formulario en el cliente envía datos y se ve un “paquete” viajando al servidor con animación.
+El cliente pide recursos y el servidor responde.
+
+Concurrencia (muchos usuarios)
+Un botón tipo “simular 100 usuarios” que muestre varios paquetes al mismo tiempo.
+Si hay más de cierto número de peticiones por segundo, el servidor se “satura” (cambia de color) y aparece un mensaje de balanceo de carga.
+
+Hacking ético y defensa
+Modo ataque:
+
+Ataques como fuerza bruta o inyección.
+Un “hacker” intenta interceptar los datos.
+
+Se puede mostrar:
+
+Reconocimiento
+Escaneo
+Acceso
+
+Defensa:
+
+Activar firewall o cifrado.
+Si está activo, el ataque falla y los datos llegan seguros.
+
+Tecnologías
+
+HTML: estructura
+CSS: diseño y animaciones
+JavaScript: lógica, eventos y simulaciones
 
 ¿Por qué este proyecto?
-No necesitas un servidor real (backend) para explicar estos conceptos. Puedes simular las respuestas del servidor usando funciones de JavaScript como setTimeout(). Esto te permite concentrarte en la lógica del sistema y en la educación sobre ciberseguridad sin complicarte con bases de datos reales en esta etapa.
+No hace falta backend real. Todo se puede simular con JavaScript (por ejemplo, con `setTimeout`). Sirve para entender redes y seguridad sin complicarse demasiado al inicio.
