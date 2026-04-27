@@ -41,7 +41,7 @@ Representan la estructura estatica del sistema.
 
 #### b. Diagrama de objetos
 - Instancias concretas de clases
-- Ejemplo: "Alumno: Juan Perez"
+- Ejemplo: "Alumno: Eitan Rabau"
 
 #### c. Diagrama de componentes
 - Modulos del sistema
