@@ -16,8 +16,8 @@
 Este proyecto se basa en los conceptos teóricos de [Redes y Conectividad.md](MAIN%20VAULT/Redes%20y%20Conectividad.md), definiendo los roles principales en la comunicación:
 
 * **Cliente:** Dispositivo que inicia la solicitud.
-* **Servidor:** Entidad que procesa la petición. La conexión lógica entre ambos se realiza mediante un [Socket.md](MAIN%20VAULT/Socket.md).
-* **Flujo de datos:** Los paquetes viajan siguiendo los protocolos establecidos en el [Marco Tecnico.md](MAIN%20VAULT/Marco%20Tecnico.md).
+* **Servidor:** Entidad que procesa la petición. La conexión lógica entre ambos se realiza mediante un [Socket.md](../../MAIN_VAULT/Socket.md).
+* **Flujo de datos:** Los paquetes viajan siguiendo los protocolos establecidos en el [Marco Tecnico.md](../../MAIN_VAULT/Marco_Tecnico.md).
 
 ---
 
