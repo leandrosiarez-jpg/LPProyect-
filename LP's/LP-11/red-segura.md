@@ -59,4 +59,3 @@ Manejar múltiples usuarios requiere una correcta [Gestion de Hilos y Procesos.m
 | :--- | :--- |
 | **HTML5 / CSS3 / JS** | Desarrollo del simulador interactivo. |
 
-Para más detalles, consulta el [Glosario Tecnico.md](MAIN%20VAULT/Glosario%20Tecnico.md).
