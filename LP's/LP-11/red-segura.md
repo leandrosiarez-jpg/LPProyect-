@@ -65,4 +65,10 @@ El proyecto utiliza tecnologías estándar descritas en nuestro [Glosario Tecnic
 | **JavaScript** | Motor de simulación y lógica de ciberseguridad. |
 
 ---
-*Este README conecta la práctica del proyecto con la base teórica almacenada en la bóveda de conocimientos (MAIN VAULT).*
+
+## 1. Fundamentos de redes
+
+Este proyecto se basa en los conceptos teóricos de [Redes y Conectividad.md](MAIN%20VAULT/Redes%20y%20Conectividad.md), definiendo los roles principales en la comunicación:
+
+* **Cliente:** Dispositivo que inicia la solicitud.
+* **Servidor:** Entidad que procesa la petición. La conexión lógica entre ambos se realiza mediante un [Socket.md](MAIN%20VAULT/Socket.md).
