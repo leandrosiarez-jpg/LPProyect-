@@ -13,6 +13,9 @@ La complejidad algoritmica es una forma de medir la cantidad de Tiempo o Memoria
 
 ### ¿Que metodos de medicion utiliza la Complejidad Algoritmica? 
 
+La complejidad Algoritmica 
+
+
 
 
 
