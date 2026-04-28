@@ -2,7 +2,7 @@
 
 **RedSegura** es una Single Page Application (SPA) interactiva diseñada para visualizar el flujo de datos en una red, el comportamiento de los sistemas bajo carga concurrente y la efectividad de las medidas de ciberseguridad ante ataques comunes.
 
-## 📋 Contenidos
+## Contenidos
 1. [Fundamentos de redes](#fundamentos-de-redes)
 2. [Arquitectura del sistema](#arquitectura-del-sistema)
 3. [Metodología de hacking ético y defensa](#metodologia-de-hacking-etico-y-defensa)
