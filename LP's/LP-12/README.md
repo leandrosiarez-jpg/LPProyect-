@@ -3,7 +3,7 @@
 ## Descripción
 Este proyecto es un puente entre la programación de redes y la ingeniería automotriz. El auto deja de ser algo puramente mecánico para convertirse en un sistema administrado, donde cada sensor es una entrada de información que requiere una respuesta precisa.
 
-## Entradas y Salidas de Información (I/O)
+## Entradas y Salidas de Información
 
 El manejo automático de estos flujos es lo que garantiza la seguridad y el rendimiento:
 
