@@ -128,6 +128,33 @@ Actor: Alumno
 - Ver notas
 - Entregar tareas
 
+
+```
+mermaid
+classDiagram
+
+class Alumno {
+  nombre
+  notas
+  entregarTarea()
+}
+
+class Profesor {
+  nombre
+  materia
+  cargarNota()
+}
+
+class Curso {
+  alumnos
+  agregarAlumno()
+}
+
+Profesor --> Curso : dicta
+Curso --> Alumno : contiene
+```
+
+
 ---
 
 #### c. Diagrama de secuencia (ejemplo: cargar nota)
