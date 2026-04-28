@@ -1,8 +1,8 @@
-# RedSegura: Simulador de redes y seguridad
+# RedSegura: Simulador de redes y seguridad 🌐🛡️
 
 **RedSegura** es una Single Page Application (SPA) interactiva diseñada para visualizar el flujo de datos en una red, el comportamiento de los sistemas bajo carga concurrente y la efectividad de las medidas de ciberseguridad ante ataques comunes.
 
-## Contenidos
+## 📋 Contenidos
 1. [Fundamentos de redes](#fundamentos-de-redes)
 2. [Arquitectura del sistema](#arquitectura-del-sistema)
 3. [Metodología de hacking ético y defensa](#metodología-de-hacking-ético-y-defensa)
@@ -13,61 +13,56 @@
 
 ## 1. Fundamentos de redes
 
-Para entender este proyecto, primero definimos los roles principales en la comunicación digital:
+Este proyecto se basa en los conceptos teóricos de [Redes y Conectividad.md](./MAIN%20VAULT/Redes%20y%20Conectividad.md), definiendo los roles principales en la comunicación:
 
-* **Cliente:** Es el dispositivo (laptop, móvil) que inicia una solicitud de recursos o servicios. En **RedSegura**, se representa como la interfaz de usuario que envía datos.
-* **Servidor:** Es la entidad (torre de servidor) que espera solicitudes, las procesa y envía una respuesta. Es el "cerebro" que gestiona la lógica y los datos.
-
-### El flujo de datos
-En la simulación, verás cómo un **"paquete"** viaja desde el cliente al servidor. Este proceso representa el protocolo HTTP/HTTPS básico donde la información se fragmenta para ser transportada.
+* **Cliente:** Dispositivo que inicia la solicitud.
+* **Servidor:** Entidad que procesa la petición. La conexión lógica entre ambos se realiza mediante un [Socket.md](./MAIN%20VAULT/Socket.md).
+* **Flujo de datos:** Los paquetes viajan siguiendo los protocolos establecidos en el [Marco Tecnico.md](./MAIN%20VAULT/Marco%20Tecnico.md).
 
 ---
 
 ## 2. Arquitectura del sistema
 
-El diseño se centra en la interactividad visual:
-* **Frontend interactivo:** Uso de formularios para enviar "datos" y disparar animaciones CSS.
-* **Simulación de backend:** Implementación de lógica en JavaScript mediante `setTimeout` y `Promises` para replicar la latencia del servidor sin necesidad de una base de datos real.
+Para la construcción de esta herramienta, se han seguido principios de [Comunicacion y Documentacion.md](./MAIN%20VAULT/Comunicacion%20y%20Documentacion.md) para asegurar un código limpio y escalable:
+
+* **Gestión del Sistema:** Inspirado en la [Administración de Sistemas y Redes.md](./MAIN%20VAULT/Administración%20de%20Sistemas%20y%20Redes.md).
+* **Interfaz (Frontend):** Simulación de un [Endpoint.md](./MAIN%20VAULT/Endpoint.md) interactivo donde el usuario final interactúa con la red.
+* **Lógica (Backend simulado):** Aunque es una SPA, la lógica de respuesta emula procesos de servidor reales.
 
 ---
 
 ## 3. Metodología de hacking ético y defensa
 
-El simulador permite alternar entre un estado de vulnerabilidad y un estado protegido para observar la **Metodología de hacking**:
+La seguridad se aborda desde la [Seguridad y Jerarquia.md](./MAIN%20VAULT/Seguridad%20y%20Jerarquia.md), analizando vulnerabilidades y protecciones:
 
 ### Fase de ataque (Modo hacker)
-1.  **Reconocimiento:** El atacante identifica el punto final del servidor.
-2.  **Escaneo:** Búsqueda de puertos o formularios vulnerables (ej. Inyección).
-3.  **Acceso:** Intento de interceptar el paquete o saturar el sistema (Fuerza Bruta).
+El simulador muestra cómo un atacante puede comprometer la [Objetividad.md](./MAIN%20VAULT/Objetividad.md) de los datos mediante interceptación. Se analiza el comportamiento desde una perspectiva técnica, evitando la [Subjetividad.md](./MAIN%20VAULT/Subjetividad.md) en el análisis de riesgos.
 
 ### Estrategias de defensa
-Podrás activar módulos de seguridad en tiempo real:
-* **Cifrado (Encryption):** Los datos del paquete se vuelven ilegibles durante el trayecto.
-* **Firewall:** Bloquea peticiones maliciosas detectadas por patrones sospechosos.
-
-> **Nota:** Si la defensa está activa, la animación de ataque mostrará un "bloqueo", garantizando que el servidor permanezca íntegro.
+* **Integridad:** Se utilizan métodos de [Time Stamping.md](./MAIN%20VAULT/Time%20Stamping.md) para validar cuándo se enviaron los datos.
+* **Autenticidad:** Aplicación del principio de [No Repudio.md](./MAIN%20VAULT/No%20Repudio.md).
+* **Hardware Seguro:** El sistema simula la protección de módulos físicos como el [HSM.md](./MAIN%20VAULT/HSM.md) y el [TPM.md](./MAIN%20VAULT/TPM.md) para el almacenamiento de llaves criptográficas.
 
 ---
 
 ## 4. Simulación de concurrencia
 
-Uno de los mayores retos en redes es el manejo de múltiples usuarios simultáneos.
+El manejo de múltiples usuarios simultáneos es crítico y se fundamenta en la [Gestion de Hilos y Procesos.md](./MAIN%20VAULT/Gestion%20de%20Hilos%20y%20Procesos.md).
 
-* **Simulación masiva:** El botón "Simular 100 usuarios" genera ráfagas de peticiones.
-* **Saturación:** Si el tráfico supera el umbral definido en el código JS, el servidor cambiará visualmente (ej. color rojo) para indicar estrés.
-* **Balanceo de carga:** Explicación visual de cómo se redistribuiría el tráfico para evitar la caída del sistema.
+* **Saturación:** Visualización de qué ocurre cuando los procesos exceden la capacidad del sistema.
+* **Optimización:** Se plantean escenarios donde la [Inteligencia Artificial.md](./MAIN%20VAULT/Inteligencia%20Artificial.md) podría ayudar a predecir picos de tráfico y balancear la carga de forma eficiente.
 
 ---
 
 ## 5. Tecnologías utilizadas
 
-El proyecto está construido puramente con tecnologías web estándar para facilitar su despliegue en cualquier navegador:
+El proyecto utiliza tecnologías estándar descritas en nuestro [Glosario Tecnico.md](./MAIN%20VAULT/Glosario%20Tecnico.md):
 
 | Tecnología | Función |
 | :--- | :--- |
-| **HTML5** | Estructura semántica de la interfaz y componentes. |
-| **CSS3** | Diseño responsivo y animaciones de paquetes (`keyframes`). |
-| **JavaScript** | Lógica de simulación, manejo de eventos y estados de seguridad. |
+| **HTML5** | Estructura base del simulador. |
+| **CSS3** | Animaciones de red y diseño visual. |
+| **JavaScript** | Motor de simulación y lógica de ciberseguridad. |
 
 ---
-
+*Este README conecta la práctica del proyecto con la base teórica almacenada en la bóveda de conocimientos (MAIN VAULT).*
