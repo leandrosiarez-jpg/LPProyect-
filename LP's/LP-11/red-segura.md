@@ -13,7 +13,7 @@
 
 ## Fundamentos de redes
 
-Este proyecto se basa en los conceptos teóricos de [Redes y Conectividad.md](../../MAIN_VAULT/Redes%20y%20Conectividad.md), definiendo los roles principales en la comunicación:
+Este proyecto se basa en los conceptos teóricos de [Redes y Conectividad.md](../../MAIN_VAULT/Redes_y_Conectividad.md), definiendo los roles principales en la comunicación:
 
 * **Cliente:** Dispositivo que inicia la solicitud.
 * **Servidor:** Entidad que procesa la petición. La conexión lógica entre ambos se realiza mediante un [Socket.md](../../MAIN_VAULT/Socket.md).
