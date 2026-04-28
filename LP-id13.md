@@ -128,34 +128,8 @@ Actor: Alumno
 - Ver notas
 - Entregar tareas
 
-
 ```
-mermaid
-classDiagram
-
-class Alumno {
-  nombre
-  notas
-  entregarTarea()
-}
-
-class Profesor {
-  nombre
-  materia
-  cargarNota()
-}
-
-class Curso {
-  alumnos
-  agregarAlumno()
-}
-
-Profesor --> Curso : dicta
-Curso --> Alumno : contiene
 ```
-
-
----
 
 #### c. Diagrama de secuencia (ejemplo: cargar nota)
 1. Profesor inicia sistema  
@@ -175,7 +149,62 @@ Flujo:
 - Fin de clase
 
 ---
+## Diagrama de clases
 
+```mermaid
+classDiagram
+Alumno --> Curso
+Profesor --> Curso
+```
+---
+## DIAGRAMA 2 — SECUENCIA
+
+```markdown
+```
+```mermaid
+sequenceDiagram
+Profesor->>Sistema: cargar nota
+Sistema->>Alumno: mostrar nota
+
+```
+---
+
+## DIAGRAMA 3 — ACTIVIDADES
+
+```markdown
+
+```
+```mermaid
+flowchart TD
+Inicio --> Clase
+Clase --> Tarea
+Tarea --> Fin
+
+
+```
+---
+
+## DIAGRAMA 4 — ESTADOS
+
+```markdown
+```
+```mermaid
+stateDiagram-v2
+[*] --> Inscripto
+Inscripto --> Regular
+Regular --> Aprobado
+Regular --> Desaprobado
+
+
+
+
+
+
+
+
+
+
+```
 ## Conclusion
 
 El uso de UML dentro del analisis sistemico permite organizar y representar de manera clara el flujo de informacion en un aula. Esto facilita la toma de decisiones, mejora la comunicacion entre los actores y optimiza la gestion educativa.
