@@ -1,3 +1,10 @@
+---
+titulo: Metodologia de Hacking etico
+fecha: 2026-04-27
+etiquetas: [Metodologias, Hacking etico, fundamnetos, importancia]
+---
+
+
 Importancia del hacking ético.
 
 El hacking ético no solo trata de ayudar y prevenir riesgos, brechas de seguridad además de reforzar la confianza sobre los propios clientes y sus socios del rubro.
