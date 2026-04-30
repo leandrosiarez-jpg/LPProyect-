@@ -3,4 +3,5 @@
 - **Función**: Protege, gestiona y almacena claves digitales de forma aislada.
 - **Seguridad Activa**: En caso de detección de ataque físico o lógico, el módulo puede invalidar las claves para evitar su filtración.
 
-**Vínculo al índice:** [[Administración de Sistemas y Redes]]
+
+**Vínculo al índice:** [Administracion_de_Sistemas_y_Redes](./Administracion_de_Sistemas_y_Redes.md)
