@@ -1,7 +1,7 @@
 ---
 titulo: Metodologia de Hacking etico
 fecha: 2026-04-27
-etiquetas: [Metodologias, Hacking etico, fundamnetos, importancia]
+etiquetas: [Metodologias, Hacking etico, fundamentos, importancia]
 ---
 
 ---
