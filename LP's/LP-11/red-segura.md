@@ -1,3 +1,9 @@
+¿Qué tanto podremos ver sobre la metodología de Hacking Ético y en el caso de estar siendo atacados cómo podríamos defendernos?
+
+¿Cómo diseñar un sistema en red que funcione correctamente cuando varios usuarios lo usan al mismo tiempo?
+
+¿Que es un cliente y un servidor en redes?
+
 # RedSegura: Simulador de redes y seguridad
 
 **RedSegura** es una Single Page Application (SPA) interactiva diseñada para visualizar el flujo de datos en una red, el comportamiento de los sistemas bajo carga concurrente y la efectividad de las medidas de ciberseguridad ante ataques comunes.
