@@ -1,8 +1,8 @@
 LPProyect es un espacio para que ustedes desarollen sus ideas y trabajos en paralelismo, donde todos nosotros podamos aprender de las relaciones entre proyectos
 
 La idea principal involucra el proyectar desde la comprensión de las bases fundamentales del análisis sistémico que les brindé (implicancias de accesos, funcionamientos, jerarquías, interpretaciones, etc)
-Cada uno de ustedes debe tomar su propio camino conceptual en base a la investigación de las ideas que consideren viables, yo pienso que cualquiera sea la implementación de los conceptos vistos va a ser complementario a los trabajos que realicen sus compañeros
-Con complementario no me refiero a de menor importancia. Todo lo contrario
+Cada uno de ustedes debe tomar su propio camino conceptual en base a la investigación de las ideas que consideren viables, yo pienso que cualquiera sea la implementación de los conceptos vistos va a ser complementaria a los trabajos que realicen sus compañeros
+Con complementaria no me refiero a de menor importancia. Todo lo contrario
 Cada uno de sus proyectos debe poder unificarse en un proyecto LPProyect intentando involucrar la mayor autonomía posible. Si no tienen claro el concepto de autonomía, ahí tienen algo que agregar a este entorno
 Todos los presentes en este proyecto tenemos la responsabilidad ética de lograr la funcionalidad de este entorno invlocurando:
 - La confrontación ante la conducta inadecuada externa
