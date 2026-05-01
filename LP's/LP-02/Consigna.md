@@ -1,6 +1,1 @@
----
-título: Análisis de vulnerabilidades
-fecha: 2026-04-22
-etiquetas: [markdown, yaml, tutorial]
-borrador: falso
----
+Los conceptos de ciberseguridad, aplicalo al análisis de vulnerabilidades en las implicancias de los proyectos de tus compañeros (luca y mateo)
