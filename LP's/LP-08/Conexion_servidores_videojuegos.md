@@ -26,3 +26,7 @@ En los videojuegos online no solo los tipos de servidores cambian, si no tambien
 - **Modelo Autoritativo**: El cliente(Jugador) sugiere acciones y depende del servidor aceptarlas y actualizar el estado del juego. Es mas seguro y balanceado, pero puede llegar a ser lento y menos exacto en cuanto a input timing.
 - **Modelo Cliente-Autoritativo:** El servidor confia mas en el cliente y no supervisa sus acciones antes de actualizar el estado del juego. Es mucho mas rapido y responsivo pero menos seguro que otras alternativas.
 - **Modelo de Prediccion:** Este modelo soluciona el problema del input timing haciendo que el cliente ejecute las acciones del jugador antes del servidor y puede ser corregido por el servidor posteriormente si es que hubo algun error. Es un modelo clave para juegos rapidos.
+
+- **Modelo Lockstep:** Este modelo permite una sicronizacion a la hora de enviar los imputs al servidor o al cliente, porque requiere que los jugadores envien su acciones antes de que el juego avance al siguiente estado. La ventaja principal es la sincronizacion precisaa entre jugadores y bajo consumo del ancho de banda, y una de sus desventajas es que puede hacer una conexiojn mas lenta o inestable, ya que depende de que todos los jugadores envien sus imputs para continuar
+
+- **Modelo Deterministico:** Este modelo permite 
