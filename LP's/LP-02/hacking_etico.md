@@ -1,14 +1,3 @@
----
-título: Análisis de vulnerabilidades
-fecha: 2026-04-22
-etiquetas: [markdown, yaml, tutorial]
-borrador: falso
----
-
-
-
-
----
 27/04/2026
 
 # Hacking etico
