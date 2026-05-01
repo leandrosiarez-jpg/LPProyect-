@@ -102,6 +102,15 @@ class Interfaz:
         elif comando == "informe":
             self.comando_informe()
         
+        elif comando == "neuro" or comando == "neuronal":
+            self.comando_neuronal()
+        elif comando == "marcar_intruso" and len(args) >= 1:
+            self.clave.escaner.marcar_intruso(args[0])
+        elif comando == "marcar_seguro" and len(args) >= 1:
+            self.clave.escaner.marcar_seguro(args[0])
+        elif comando == "neuro_estado":
+            self.clave.escaner.estado_neuronas()
+        
         else:
             print(f"❌ Comando '{comando}' no reconocido. Escribí 'ayuda' para ver todos los comandos")
     
@@ -359,3 +368,7 @@ class Interfaz:
         self.comando_analizar()
         self.comando_export_html()
         self.clave.voz.decir("Informe generado")
+
+    def comando_neuronal(self):
+        self.clave.voz.decir("Iniciando análisis neuronal")
+        self.clave.escaner.analizar_con_neuronas()

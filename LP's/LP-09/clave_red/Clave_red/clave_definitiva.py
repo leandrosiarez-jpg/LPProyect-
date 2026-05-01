@@ -42,6 +42,10 @@ class CLAVE:
             "top_10_puertos": "Mostrar puertos más comunes en la red",
             "analizar": "Análisis completo de seguridad",
             "informe": "Generar informe detallado HTML",
+            "neuro": "Análisis neuronal (Perceptrón + Sigmoide + ReLU)",
+            "marcar_intruso": "Marcar un IP como intruso (ej: marcar_intruso 192.168.1.50)",
+            "marcar_seguro": "Marcar un IP como seguro (ej: marcar_seguro 192.168.1.1)",
+            "neuro_estado": "Ver estado y pesos actuales de las neuronas",
             "ayuda": "Mostrar todos los comandos",
             "salir": "Cerrar C.L.A.V.E."
         }
