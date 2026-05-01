@@ -8,12 +8,14 @@ import time
 import platform
 import re
 from datetime import datetime
+from neurona import CerebroNeuronal
 
 class EscanerRed:
     def __init__(self):
         self.sistema = platform.system()
         self.ultimos_resultados = []
         self.historial_escaneos = []
+        self.cerebro = CerebroNeuronal()   # ← neuronas con aprendizaje
         
         # Base de datos completa de fabricantes
         self.fabricantes = {
@@ -494,3 +496,57 @@ class EscanerRed:
                 return f"IP Privada (No rooteable)"
         
         return "IP Pública (Roteable en Internet)"
+
+    # ─────────────────────────────────────────────
+    #  MÉTODOS NEURONALES
+    # ─────────────────────────────────────────────
+
+    def analizar_con_neuronas(self):
+        """Analiza ultimos_resultados con las 3 neuronas y muestra el informe"""
+        if not self.ultimos_resultados:
+            print("⚠️  Ejecutá 'scan' primero")
+            return []
+
+        resultados = self.cerebro.analizar_red(self.ultimos_resultados)
+
+        iconos = {"BAJO": "🟢", "MEDIO": "🟡", "ALTO": "🟠", "CRÍTICO": "🔴"}
+
+        print("\n🧠 ANÁLISIS NEURONAL DE LA RED")
+        print("=" * 60)
+        for r in resultados:
+            icono = iconos.get(r["etiqueta"], "⚪")
+            print(f"{icono} {r['ip']:<16} | Riesgo: {r['riesgo']:.0%} | {r['etiqueta']}")
+            if r["etiqueta"] in ("ALTO", "CRÍTICO"):
+                for exp in r["explicacion"]:
+                    print(f"   → {exp}")
+        print("=" * 60)
+
+        criticos = sum(1 for r in resultados if r["etiqueta"] == "CRÍTICO")
+        altos    = sum(1 for r in resultados if r["etiqueta"] == "ALTO")
+        if criticos:
+            print(f"🚨 {criticos} dispositivo(s) CRÍTICO(S) detectado(s)")
+        if altos:
+            print(f"⚠️  {altos} dispositivo(s) con riesgo ALTO")
+
+        # Aprender de este escaneo automáticamente
+        self.cerebro.aprender_de_red(self.ultimos_resultados)
+        return resultados
+
+    def marcar_intruso(self, ip: str):
+        """Marca manualmente un dispositivo como intruso para reforzar el aprendizaje"""
+        disp = next((d for d in self.ultimos_resultados if d["ip"] == ip), None)
+        if disp:
+            self.cerebro.marcar_como_intruso(disp)
+        else:
+            print(f"❌ IP {ip} no encontrada en el último escaneo")
+
+    def marcar_seguro(self, ip: str):
+        """Marca manualmente un dispositivo como seguro"""
+        disp = next((d for d in self.ultimos_resultados if d["ip"] == ip), None)
+        if disp:
+            self.cerebro.marcar_como_seguro(disp)
+        else:
+            print(f"❌ IP {ip} no encontrada en el último escaneo")
+
+    def estado_neuronas(self):
+        self.cerebro.estado_neuronas()
