@@ -1,17 +1,7 @@
----
-título: Análisis de vulnerabilidades
-fecha: 2026-04-22
-etiquetas: [markdown, yaml, tutorial]
-borrador: falso
----
-
-
-
-
----
 27/04/2026
 
 # Hacking etico
+(https://biblioteca.ciencialatina.org/wp-content/uploads/2024/12/Libro-Hacking-Etico-Teoria-Practicas.pdf)
 
 Una filosofía que aboga por la protección y defensa de los sistemas informáticos frente a actores maliciosos.
 
