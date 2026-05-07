@@ -57,5 +57,3 @@ Un ejemplo concreto: si el sensor de detonación (knock) y el sensor O2 reportan
 - Las señales que compiten provienen de [Sensores_Inputs.md](./Sensores_Inputs.md).
 - El medio donde ocurre el arbitraje inicial es el [CAN_Bus.md](./CAN_Bus.md).
 - La ECU que ejecuta la lógica de prioridades está en [ECU.md](./ECU.md).
-
-**Vínculo al índice:** [Administración de Sistemas y Redes](../../../MAIN_VAULT/Administración_de_Sistemas_y_Redes.md)
