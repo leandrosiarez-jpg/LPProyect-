@@ -60,5 +60,3 @@ Las medidas de seguridad aplicadas sobre OBD-II incluyen autenticación de herra
 - Los endpoints que necesitan protección son los [Sensores_Inputs.md](./Sensores_Inputs.md), especialmente el TPMS.
 - La [ECU.md](./ECU.md) es el activo más crítico a proteger.
 - El medio de transporte que se asegura es el [CAN_Bus.md](./CAN_Bus.md).
-
-**Vínculo al índice:** [Administración de Sistemas y Redes](../../../MAIN_VAULT/Administración_de_Sistemas_y_Redes.md)
