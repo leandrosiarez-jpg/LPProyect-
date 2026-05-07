@@ -49,5 +49,3 @@ Sensor (input) → CAN Bus (transporte) → ECU (procesamiento) → Actuador (ou
 ```
 
 Este ciclo continuo es la base del funcionamiento del vehículo. No es lineal: ocurre en paralelo para decenas de sistemas al mismo tiempo, gestionado por la lógica de prioridades que describe [Jerarquia_de_Señales.md](./Jerarquia_de_Señales.md).
-
-**Vínculo al índice:** [Administración de Sistemas y Redes](../../../MAIN_VAULT/Administración_de_Sistemas_y_Redes.md)
