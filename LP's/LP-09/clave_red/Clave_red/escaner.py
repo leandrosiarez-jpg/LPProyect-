@@ -267,6 +267,12 @@ class EscanerRed:
                 sock.close()
             except:
                 pass
+        
+        self.clave.memoria.guardar_escaneo(resultados, resultados_neuronales)
+        nuevos = self.clave.memoria.dispositivos_nuevos(resultados)
+        if nuevos:
+            print(f"⚠️  {len(nuevos)} dispositivos NUEVOS no vistos antes!")
+
         return abiertos
     
     def escanear_todos_los_puertos(self, ip):
@@ -286,6 +292,10 @@ class EscanerRed:
                 pass
             if puerto % 1000 == 0:
                 print(f"   Progreso: {puerto}/65535")
+        self.clave.memoria.guardar_escaneo(resultados, resultados_neuronales)
+        nuevos = self.clave.memoria.dispositivos_nuevos(resultados)
+        if nuevos:
+            print(f"⚠️  {len(nuevos)} dispositivos NUEVOS no vistos antes!")
         return abiertos
     
     def escanear_red_completo(self, red_especifica=None):
@@ -328,6 +338,10 @@ class EscanerRed:
                     "puertos": puertos
                 })
                 print(f"✅ {ip} - {nombre or 'Desconocido'} - {fabricante} - {so}")
+                self.clave.memoria.guardar_escaneo(resultados, resultados_neuronales)
+                nuevos = self.clave.memoria.dispositivos_nuevos(resultados)
+                if nuevos:
+                    print(f"⚠️  {len(nuevos)} dispositivos NUEVOS no vistos antes!")
         
         for ip in red_ip.hosts():
             hilo = threading.Thread(target=escanear_ip, args=(str(ip),))
@@ -339,6 +353,12 @@ class EscanerRed:
         
         self.ultimos_resultados = resultados
         self.guardar_historial(resultados)
+    
+        self.clave.memoria.guardar_escaneo(resultados, resultados_neuronales)
+        nuevos = self.clave.memoria.dispositivos_nuevos(resultados)
+        if nuevos:
+            print(f"⚠️  {len(nuevos)} dispositivos NUEVOS no vistos antes!")
+        
         return resultados
     
     def escanear_rapido(self):
@@ -356,6 +376,11 @@ class EscanerRed:
                 nombre = self.obtener_nombre_dns(ip)
                 resultados.append({"ip": ip, "nombre": nombre or "Desconocido"})
                 print(f"✅ {ip} - {nombre or 'Desconocido'}")
+        
+        self.clave.memoria.guardar_escaneo(resultados, resultados_neuronales)
+        nuevos = self.clave.memoria.dispositivos_nuevos(resultados)
+        if nuevos:
+            print(f"⚠️  {len(nuevos)} dispositivos NUEVOS no vistos antes!")
         
         return resultados
     
@@ -378,6 +403,11 @@ class EscanerRed:
                     nombre = self.obtener_nombre_dns(ip)
                     resultados.append({"ip": ip, "nombre": nombre or "Desconocido"})
                     print(f"✅ {ip} - {nombre or 'Desconocido'}")
+        
+        self.clave.memoria.guardar_escaneo(resultados, resultados_neuronales)
+        nuevos = self.clave.memoria.dispositivos_nuevos(resultados)
+        if nuevos:
+            print(f"⚠️  {len(nuevos)} dispositivos NUEVOS no vistos antes!")
         
         return resultados
     

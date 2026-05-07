@@ -112,7 +112,17 @@ class Interfaz:
             self.clave.escaner.estado_neuronas()
         
         else:
-            print(f"❌ Comando '{comando}' no reconocido. Escribí 'ayuda' para ver todos los comandos")
+            # Intentar interpretar con NLP antes de rendirse
+            comando_nlp, args_nlp = self.clave.procesar_input_libre(cmd)
+            if comando_nlp:
+                print(f"💬 Entendí: {comando_nlp} (confianza alta)")
+                # Ejecutar recursivamente con el comando reconocido
+                cmd_reconstruido = comando_nlp
+                if args_nlp:
+                    cmd_reconstruido += " " + " ".join(args_nlp)
+                self.ejecutar_comando(cmd_reconstruido)
+            else:
+                print(f"❌ No entendí '{cmd}'. Escribí 'ayuda' o intentá con otras palabras.")
     
     def comando_ayuda(self):
         print("\n" + "=" * 70)
@@ -132,6 +142,7 @@ class Interfaz:
     def comando_salir(self):
         self.clave.voz.decir("Cerrando C L A V E")
         print("👋 C.L.A.V.E. cerrada")
+        self.clave.memoria.cerrar_sesion()
         self.running = False
     
     def comando_scan(self):
