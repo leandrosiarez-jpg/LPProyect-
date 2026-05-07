@@ -53,5 +53,3 @@ La lógica completa de qué mensajes tienen prioridad sobre cuáles se desarroll
 El CAN Bus fue diseñado para la confiabilidad, no para la seguridad. En su versión original, cualquier nodo de la red puede enviar cualquier mensaje sin autenticación. Esto es un problema serio en vehículos modernos que admiten conexiones externas (OBD-II, Bluetooth, conectividad celular).
 
 Las soluciones de seguridad aplicadas sobre el CAN Bus se explican en [Protocolos_Seguridad.md](./Protocolos_Seguridad.md).
-
-**Vínculo al índice:** [Administración de Sistemas y Redes](../../../MAIN_VAULT/Administración_de_Sistemas_y_Redes.md)
