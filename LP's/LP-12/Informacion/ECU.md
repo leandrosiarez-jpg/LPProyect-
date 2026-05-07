@@ -51,5 +51,3 @@ La ECU registra códigos de falla (DTC - Diagnostic Trouble Codes) cada vez que 
 - Los datos viajan por el [CAN_Bus.md](./CAN_Bus.md).
 - Las órdenes que emite van a los [Actuadores_Outputs.md](./Actuadores_Outputs.md).
 - La seguridad de su hardware la garantizan los protocolos de [Protocolos_Seguridad.md](./Protocolos_Seguridad.md).
-
-**Vínculo al índice:** [Administración de Sistemas y Redes](../../../MAIN_VAULT/Administración_de_Sistemas_y_Redes.md)
