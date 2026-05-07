@@ -28,5 +28,3 @@ Cada uno de esos eslabones tiene su propia complejidad. Por eso este proyecto lo
 El flujo completo input → procesamiento → output es la versión automotriz de lo que estudiamos en [Comunicacion y Documentacion](../../../MAIN_VAULT/Comunicacion_y_Documentacion.md): una señal subjetiva (la intención del conductor) que el sistema transforma en un protocolo objetivo y automatizado.
 
 El objetivo de este proyecto es demostrar que administrar una red de computadoras y administrar un vehículo moderno son, en el fondo, el mismo problema.
-
-**Vínculo al índice:** [Administración de Sistemas y Redes](../../../MAIN_VAULT/Administración_de_Sistemas_y_Redes.md)
