@@ -45,5 +45,3 @@ Esto es exactamente la dinámica que describe el archivo de [Subjetividad](../..
 ## Flujo del dato desde el sensor
 
 Una vez que el sensor genera su señal, esa información viaja por la red interna del vehículo hacia la ECU. Ese camino lo explica [CAN_Bus.md](./CAN_Bus.md).
-
-**Vínculo al índice:** [Administración de Sistemas y Redes](../../../MAIN_VAULT/Administración_de_Sistemas_y_Redes.md)
