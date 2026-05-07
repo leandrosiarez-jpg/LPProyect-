@@ -11,7 +11,6 @@ Se debe tener en cuenta de que tiene vulnerabilidades ser  un hacking ético. Ll
 ---
 
 ---
----
 ### Importancia sobre el hacking ético para las organizaciones.
 
 El hacking ético permite realizar evaluación a los niveles de seguridad vigentes al momento de realizar un análisis, identificación de vulnerabilidades y corregirlas al momento para evitar amenazas.
