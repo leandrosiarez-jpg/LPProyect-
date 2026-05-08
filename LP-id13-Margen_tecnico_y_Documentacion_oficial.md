@@ -103,3 +103,9 @@ Esto permitio transformar documentacion extensa y especializada en contenido acc
 Las fuentes utilizadas integran normas internacionales de modelado UML, conocimientos avanzados de computacion y herramientas modernas de diagramacion visual.
 
 La combinacion de UML, Lucidchart, IBM Explainers y NotebookLM permitio desarrollar una base tecnica mas completa para comprender sistemas, procesos y arquitecturas tecnologicas modernas.
+
+## Referencias
+
+- [NoteBook LM Official Site](https://notebooklm.google/)
+- [LucidChart](www.lucid.co)
+- [OMG- UML](https://www.omg.org/spec/UML/2.5.1/About-UML)
