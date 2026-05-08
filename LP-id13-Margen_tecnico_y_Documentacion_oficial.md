@@ -108,4 +108,4 @@ La combinacion de UML, Lucidchart, IBM Explainers y NotebookLM permitio desarrol
 
 - [NoteBook LM Official Site](https://notebooklm.google/)
 - [LucidChart](www.lucid.co)
-- [OMG- UML](https://www.omg.org/spec/UML/2.5.1/About-UML)
+- [O.M.G. - UML](https://www.omg.org/spec/UML/2.5.1/About-UML)
