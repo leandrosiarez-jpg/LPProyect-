@@ -7,13 +7,13 @@ El diagrama esta bien estructurado y refleja de manera lógica el flujo de opera
 
 ### **Defensa de la Disponibilidad y Control de Carga (Nodos E a I)**
 
-El diagrama acierta al incluir la gestión de concurrencia y la sincronización para evitar conflictos, el agotamiento de recursos esta correctamente gestionado al implementar redundancia y balanceo de ccarga para distribuir el trafico y evitar que un solo recurso se vea sobrepasado.
+El diagrama acierta al incluir la gestión de concurrencia y la sincronización para evitar conflictos, el agotamiento de recursos esta correctamente gestionado al implementar redundancia y balanceo de carga para distribuir el trafico y evitar que un solo recurso se vea sobrepasado.
 
 ---
 
 ### **Detección de Ataques por Saturacion (Nodo K)**
 
-En una situación de alta carga, es fundamental distinguir el tráfico legítimo de un ataque DoS o DDoS.
+En una situación de alta carga, es fundamental distinguir el tráfico legítimo de un ataque DoS o DDoS. Es recomendable el uso de sistemas de mitigación de DDoS y soluciones basadas en la nube, que filtran el tráfico malicioso para que el flujo normal pueda llegar a su destino sin interrupciones.
 
 - **Moniteoreo activo:** se sugiere el uso de Sistemas de Detección de Intrusiones (IDS) como Snort u OSSEC para analizar el tráfico en tiempo real e identificar patrones de ataque antes de que el sistema colapse
 
