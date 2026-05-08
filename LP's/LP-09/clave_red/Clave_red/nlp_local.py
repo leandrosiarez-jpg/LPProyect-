@@ -254,6 +254,10 @@ INTENCIONES = {
     "salir": [
         "salir", "cerrar", "exit", "quit", "chau", "adios", "terminar"
     ],
+    "debug_nlp": [
+        "debug nlp", "modo debug", "activar debug", "ver que entiende",
+        "mostrar interpretacion", "que entendiste", "ver debug"
+    ],
 }
 
 

@@ -7,6 +7,7 @@ class Interfaz:
     def __init__(self, clave):
         self.clave = clave
         self.running = True
+        self.debug_nlp = False
     
     def iniciar(self):
         while self.running:
@@ -110,17 +111,31 @@ class Interfaz:
             self.clave.escaner.marcar_seguro(args[0])
         elif comando == "neuro_estado":
             self.clave.escaner.estado_neuronas()
-        
+        elif comando == "debug_nlp":
+            if args and args[0] == "on":
+                self.debug_nlp = True
+                print("🔍 Debug NLP activado. Cada comando mostrará cómo lo interpreta la IA.")
+            elif args and args[0] == "off":
+                self.debug_nlp = False
+                print("🔕 Debug NLP desactivado.")
+            else:
+                estado = "ON" if self.debug_nlp else "OFF"
+                print(f"🔍 Debug NLP está: {estado}. Usá 'debug_nlp on' o 'debug_nlp off'.")
         else:
             # Intentar interpretar con NLP antes de rendirse
-            comando_nlp, args_nlp = self.clave.procesar_input_libre(cmd)
+            comando_nlp, args_nlp = self.clave.procesar_input_libre(cmd, self.debug_nlp)
             if comando_nlp:
-                print(f"💬 Entendí: {comando_nlp} (confianza alta)")
-                # Ejecutar recursivamente con el comando reconocido
-                cmd_reconstruido = comando_nlp
-                if args_nlp:
-                    cmd_reconstruido += " " + " ".join(args_nlp)
-                self.ejecutar_comando(cmd_reconstruido)
+                if comando_nlp == "debug_nlp":
+                    # Si el NLP mismo detectó que quieren debug, activarlo
+                    self.debug_nlp = not self.debug_nlp
+                    estado = "ON" if self.debug_nlp else "OFF"
+                    print(f"🔍 Debug NLP: {estado}")
+                else:
+                    print(f"💬 Entendí: {comando_nlp} (confianza alta)")
+                    cmd_reconstruido = comando_nlp
+                    if args_nlp:
+                        cmd_reconstruido += " " + " ".join(args_nlp)
+                    self.ejecutar_comando(cmd_reconstruido)
             else:
                 print(f"❌ No entendí '{cmd}'. Escribí 'ayuda' o intentá con otras palabras.")
     

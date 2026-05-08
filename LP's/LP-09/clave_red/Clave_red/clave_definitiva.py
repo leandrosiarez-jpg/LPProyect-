@@ -39,12 +39,12 @@ class CLAVE:
         self.interfaz = Interfaz(self)
         self.interfaz.iniciar()
     
-    def procesar_input_libre(self, texto: str) -> tuple:
+    def procesar_input_libre(self, texto: str, debug: bool = False) -> tuple:
         """
         Intenta interpretar texto libre con el NLP.
         Devuelve (comando, args) o (None, []) si no entiende.
         """
-        return self.nlp.procesar_input(texto)
+        return self.nlp.procesar_input(texto, modo_debug=debug)
     
     def cerrar(self):
         self.memoria.cerrar_sesion()

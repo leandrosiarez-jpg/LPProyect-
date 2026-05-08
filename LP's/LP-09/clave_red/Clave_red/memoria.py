@@ -313,41 +313,81 @@ class Memoria:
     
     def obtener_ejemplos_entrenamiento(self) -> list:
         """
-        Extrae los dispositivos marcados manualmente para re-entrenar neurona.py.
-        Devuelve lista de (ip, accion, dispositivo_dict).
+        Extrae dispositivos marcados para re-entrenar.
+        Soporta tanto marcados desde escaneo como marcados directos (offline).
         """
+        import json
         c = self.conexion.cursor()
         c.execute("""
-            SELECT a.ip, a.accion, e.mac, e.fabricante, 
-                   e.nombre_dns, e.sistema_op, e.puertos_json
+            SELECT a.ip, a.accion, a.mac, a.fabricante, a.notas,
+                e.nombre_dns, e.sistema_op, e.puertos_json
             FROM aprendizaje a
             LEFT JOIN escaneos e ON a.ip = e.ip
             ORDER BY a.timestamp DESC
         """)
         rows = c.fetchall()
-        
+
         ejemplos = []
         for row in rows:
             d = dict(row)
+
+            # Intentar leer datos extra desde el campo notas (registros offline)
+            notas_extra = {}
+            if d.get("notas"):
+                try:
+                    notas_extra = json.loads(d["notas"])
+                except Exception:
+                    pass
+
+            # Los puertos vienen de escaneos si existe, sino de notas
             puertos = []
             if d.get("puertos_json"):
                 try:
                     puertos = json.loads(d["puertos_json"])
-                except:
+                except Exception:
                     pass
-            
+            elif notas_extra.get("puertos"):
+                puertos = notas_extra["puertos"]
+
             dispositivo = {
-                "ip": d["ip"],
-                "mac": d.get("mac", "No disponible"),
-                "fabricante": d.get("fabricante", "Desconocido"),
-                "nombre": d.get("nombre_dns", "Desconocido"),
-                "sistema_operativo": d.get("sistema_op", "Desconocido"),
-                "puertos": puertos
+                "ip":               d["ip"],
+                "mac":              d.get("mac") or "No disponible",
+                "fabricante":       d.get("fabricante") or "Desconocido",
+                "nombre":           d.get("nombre_dns") or notas_extra.get("nombre") or "Desconocido",
+                "sistema_operativo": d.get("sistema_op") or notas_extra.get("sistema") or "Desconocido",
+                "puertos":          puertos,
+                "ttl":              notas_extra.get("ttl", 128),
             }
             ejemplos.append((dispositivo, d["accion"]))
-        
+
         return ejemplos
-    
+        
+    def registrar_marcado_directo(self, dispositivo: dict, accion: str):
+        """
+        Registra un dispositivo en la tabla aprendizaje SIN necesitar
+        que haya sido escaneado antes. Útil para entrenamiento offline.
+        accion: 'intruso' o 'seguro'
+        """
+        import json
+        c = self.conexion.cursor()
+        
+        # Insertar en aprendizaje con todos los datos del dispositivo
+        c.execute("""
+            INSERT INTO aprendizaje (ip, accion, mac, fabricante, notas)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            dispositivo.get("ip", "0.0.0.0"),
+            accion,
+            dispositivo.get("mac"),
+            dispositivo.get("fabricante"),
+            json.dumps({
+                "nombre":    dispositivo.get("nombre"),
+                "sistema":   dispositivo.get("sistema_operativo"),
+                "puertos":   dispositivo.get("puertos", []),
+                "ttl":       dispositivo.get("ttl", 128),
+            }, ensure_ascii=False)
+        ))
+        self.conexion.commit()
     # ─────────────────────────────────────────────
     #  ESTADÍSTICAS (para el NLP y la interfaz)
     # ─────────────────────────────────────────────
