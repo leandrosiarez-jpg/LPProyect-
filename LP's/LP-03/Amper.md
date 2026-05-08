@@ -1,8 +1,16 @@
 # Corriente / Amper
-La corriente se define como la cantidad de electrones pasando por un conductor.
-Esta unidad "aparece" en el momento en el que se cierra circuito (entra en contacto fase y nuetro mediante algo que genere resistencia)
-y define cuanta potencia tendra un aparato.
-ha de aclararse que a mayor tension menor consumo, debido 
+
+La corriente eléctrica es el flujo de carga eléctrica que circula por un conductor.  
+En instalaciones eléctricas convencionales, este flujo ocurre mediante el movimiento de electrones.
+
+La corriente aparece cuando existe:
+
+- una diferencia de potencial (voltaje),
+- un circuito cerrado,
+- y una carga conectada.
+
+La unidad de medida de la corriente es el amper (A).
+
 # Ej:
 Segun la ley de watt:
 
