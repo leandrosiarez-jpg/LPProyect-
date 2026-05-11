@@ -3,7 +3,7 @@
  interactivo que sirve para la alteracion de la informacion de una base de datos.
 
 ## Origen
-Se origina en las bases de datos relacionales de PC o movil. En 1970, IB; se basa en estas ideas y define al lenguaje SEQUEL (Structured English Query Language) que luego es ampliamente adpotado por los SGBD. Casi en la decada de los 80, Oracle lo introduce comercialmente.
+Se origina en las bases de datos relacionales de PC o movil. En 1970, IB; se basa en estas ideas y define al lenguaje SEQUEL (Structured English Query Language) que luego es ampliamente adpotado por los [SGBD](../../Glosario.md). Casi en la decada de los 80, Oracle lo introduce comercialmente.
 En 1986, el Instituto Nacional Estadounidense de Estandares toma a SEQUEL y crea SQL1, o SQL86, y un año despues el mismo es adpotado por la Organizacion Internacional de Estandares para crear SQL2. Desde ese punto el lenguaje fue evolucionando.
 
 

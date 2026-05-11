@@ -57,3 +57,19 @@ Permite al atacante ejecutar comandos del sistema operativo desde el navegador. 
 ## SGBD
 Sistema Gestor de Base de Datos: motor que administra los datos.
 Ejemplos: MySQL, PostgreSQL, SQL Server, Oracle, SQLite. Cada uno tiene su propio dialecto SQL, funciones y comentarios. Identificar el SGBD es clave en ataques de inyección para usar el payload correcto.
+
+##Payload
+Dato malicioso enviado al objetivo para explotar una vulnerabilidad
+Es la parte del ataque que hace el daño. En SQLi, sería la cadena con comillas y comandos SQL. En XSS, sería el tag <script>. Los payloads se adaptan según el contexto y la tecnología objetivo.
+
+##Footprinting
+Recolección pasiva de información sobre el objetivo antes de atacar.
+Primera fase de un pentest. Incluye búsqueda en WHOIS, DNS, Google Dorks, Shodan, redes sociales. No se interactúa directamente con el objetivo para no dejar rastro ni activar alertas.
+
+##Fingerprinting
+Identificación del software, versiones y tecnologías del objetivo.
+Se detecta el servidor web (Apache, Nginx), lenguaje (PHP, ASP), CMS (WordPress), SGBD, etc. Puede hacerse analizando headers HTTP, errores, extensiones de archivos, o herramientas como WhatWeb.
+
+##Pentest
+Prueba de penetración: ataque ético y controlado para encontrar vulnerabilidades.
+Proceso autorizado de simular ataques reales para identificar debilidades. Se divide en fases: reconocimiento, escaneo, explotación, post-explotación y reporte. Diferente a hacking malicioso por el permiso explícito.
