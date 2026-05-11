@@ -35,7 +35,7 @@ Aplicar criptografía en la transmisión de datos para que el uso compartido de 
 
 ---
 
-### **4. Gestiión y Monitoreo Conitnuo**
+### **4. Gestión y Monitoreo Conitnuo**
 
 Un sistema bien diseñado requiere una gestión proactiva para mantenerse funcional:
 
