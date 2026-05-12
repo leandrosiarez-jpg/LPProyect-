@@ -38,3 +38,5 @@ El proyecto deberá permitir el registro e inicio de sesión de usuarios mediant
 
 ```txt
 Cliente -> Servidor -> Validación -> Respuesta
+
+Tiempo limite: 7 Dias para el desarrollo
