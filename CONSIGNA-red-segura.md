@@ -12,7 +12,7 @@
 * **Visualización de paquetes:** Representar el trayecto de los datos siguiendo los protocolos definidos en el marco técnico.
 * **Endpoints:** Diseñar la interfaz para que funcione como un punto final de comunicación real.
 
-### Gestión de Concurrencia
+### Gestión de concurrencia
 * **Hilos y procesos:** El sistema debe demostrar cómo se administran múltiples solicitudes simultáneas.
 * **Optimización con IA:** Implementar lógica de balanceo de carga asistida por algoritmos que detecten picos de tráfico.
 
