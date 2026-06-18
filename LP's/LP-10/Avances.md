@@ -1,8 +1,19 @@
-#Fase 1: Planificación e investigación
+### Fase 1: Planificación e investigación
 
 
-**Definición del Proyecto: Se seleccionó el desarrollo de un escáner de puertos TCP como herramienta básica de auditoría de redes.
+**Definición del Proyecto:** Se seleccionó el desarrollo de un escáner de puertos TCP como herramienta básica de auditoría de redes.
 
-Investigación teórica: se documentaron los conceptos fundamentales de puertos lógicos, el protocolo TCP y el funcionamiento de Three way Handshake (Saludo de tres vías)
+**Investigación teórica:** se documentaron los conceptos fundamentales de puertos lógicos, el protocolo TCP y el funcionamiento de Three way Handshake (Saludo de tres vías)
 
-Alcance: Este proyecto se diseñó con un enfoque para mantener una estructura simple
+**Alcance:** Este proyecto se diseñó con un enfoque para mantener una estructura simple
+
+### Fase 2: selección del entorno de desarrollo
+
+**Investigación de herramientas:** Se analizaron y seleccionaron las aplicaciones óptimas para el desarrollo y control del proyecto, priorizando la eficiencia y simplicidad del proyecto
+
+**Python 3:** Se eligió como el lenguaje de programación base debido a su potencia nativa para el manejo de redes a través de la librería estándar “socket.” 
+
+**Visual Studio Code:** este programa se seleccionó como el editor de código principal por su ligereza y facilidad para integrar extensiones de depuración
+
+**Github Desktop:** es la herramienta visual para la gestión del repositorio y el control de versiones, permitiendo trabajar en conjunto de manera organizada y sin sobrecarga de comandos en la terminal  
+
