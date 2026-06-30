@@ -13,4 +13,16 @@ La complejidad algoritmica es una forma de medir la cantidad de Tiempo o Memoria
 
 ### ¿Que metodos de medicion utiliza la Complejidad Algoritmica? 
 
-La complejidad Algoritmica 
+La complejidad Algoritmica se mide de las siguientes maneras: 
+
+Complejidad constante: El algoritmo tarda siempre lo mismo, sin importar si le pasas 1 dato o 1 millón. No se mueve, se queda plano.
+
+Complejidad Logaritmica: El tiempo crece, pero cada vez más lento. Es extremadamente eficiente para grandes volúmenes de datos. Suele aparecer cuando en cada paso del algoritmo reduces el problema a la mitad.
+
+Complejidad Cuadrática: El tiempo crece de forma exponencial respecto al cuadrado de los datos. Si tienes 10 datos, hace 100 operaciones. Si tienes 1,000 datos, hace 1,000,000. Se empieza a poner muy lento con listas grandes. 
+
+
+## Manejo de Hardware de Servidores. 
+
+https://www.fivetk.com/e-news/server-hardware/
+
