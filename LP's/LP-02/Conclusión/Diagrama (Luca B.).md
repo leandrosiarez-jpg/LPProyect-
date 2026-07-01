@@ -42,4 +42,4 @@ El nodo de Logs al final del proceso es un pilar de la seguridad:
 ---
 
 Sugerencia:
-Al ser debido a una situacion general, se sufgiere la integración de soluciones basadas en la nube, defensas aptas para filtrar el tráfico malicioso antes de que llegue a tu infraestructura principal, permitiendo que el tráfico normal fluya sin interrupciones.
+Al ser debido a una situacion general, se sugiere la integración de soluciones basadas en la nube, defensas aptas para filtrar el tráfico malicioso antes de que llegue a tu infraestructura principal, permitiendo que el tráfico normal fluya sin interrupciones.
