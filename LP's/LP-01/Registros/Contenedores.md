@@ -80,9 +80,43 @@ Los pods pueden er grupso de uno o mas contenedores, ya sea como linux o Docker.
 ---
 
 ---
+
 # El funcionamiento de Kubernetes en las redes.
 Su creación es para la ejeccución de sistmeas distribuidos en un plano de red distribuido en un cluster de maquinas para proporcionar interconectividad entre los componentes ne las redes de cluster de kubernetes para estos crean un entorno perfecto en los cuales datos puedan moverse de forma libre y eficiente. 
 
 Estos caracterica distintiva de las redes de Kubernetes en su estrctura de red plana. El cual puede definirse como componentes uqe se conectan sin depender de un hardware de forma independientemente de los pods de un cluster. Para comunicarse con lso demas dispositivos independientemente del nodo para ejecutar. en la red plana ofrece un modo eficaz para compartir recursos y eliminar la misma necesidad de asignación de puertos de forma dinamica.
+
+---
+
+---
+# Casos de uso de Kubernetes.
+
+- 1° Utilización de aplicaciones a gran escala.
+Uno de los usos del Kubernetes se ve relacionado con sitios web que contenga un alto trafico además de que las apps que usan **Cloud Computing** reciben millones de solicitudes de usuario a diarío siendo una ventaja importante para el uso de Kubernete. Así mismo su implementación en las apps en la nube a gran escala para realizar un autoescalado. Para así mismo ajustarse automaticamente en los cambios para la demanda con una rapidez y eficancia en un tiempo relativamente corto de inactividad. 
+
+Además de que es forma continua y respondiendo a los cambios en los patrones del trafico web así ayudando a mantener ciertca cantidad de recrusos en la carga de trabajo y así sin aprovisionamiento excesivo o corto.
+
+- 2° Computación de alto rendimiento.
+En los sectores del gobierno como la ciencia, finanzas y ingenieria dependera en una gran medida para la tecnologia para procesar los calculos complejos donde el HPC se llega a utilizar potentes procesadores que se encarga a un ritmo alto para la toma de decisiónes con datos en los cual es se automizatizan en un comercio bursatil.
+
+- 3° El uso de IA y el machine Learning.
+Se utiliza para crear y implementar un sistmea donde se requiere enormes volumenes de datoss y procesos complejos los cuales una computadora necesita un alto rendimiento y un analisis de gran datos en los cuales. Se implementa en un machine Learning en Kubernetes para facilitar en organizaciones de automatizacion sobre la gestion y el escaldao de los ciclos de vida para reducir su necesidad de intervenicion manual.
+
+Siendo un ejemplo en la cual la plataforma se orquesta para automatizar en diferentes partes en los flujos donde el trabajo se debe de mantener predictivo en la IA y la ml en donde se incluye en sus comprobaciónes en el estado de salud y su planificación de recursos.
+
+- 4° Gestión de microservicios.
+Esto ofrece un enfoque moderno en la arquictectura nativa en donde cada aplicacion se compone en numerosos componentes o servicios mas pequeños que se interconectan e implementan de una forma independiente. Se suele incluir en un servicio de pedido o pago incluso de envio o atención al cliente. En esto el servicio se tiene su propia API rest en donde los demas servicios se utilizen para comunicarse con el.
+
+Se diseña con el fin de gestionar la complejidad donde implicaba la gestion de componentes independientes que pueden ejecutar en simultaneadad en una arquictectura de microservicios siendo un ejemplo una caracteristica de alta disponiblidad donde se integre en Kubernete para garantizar la operación continua en un posible caso de fallo en donde se puede autoreparar en kubernetes se activa en una app de contendores o componentes.
+
+- 5° Implementación de hibridos y multinube.
+En Kubernetes esta diseñado de ta lforma que se utilize en cualquier lugar para facilitar las organizaciónes de migración de apps en u entorno local dentro de una nube hibrida o multinubes. Con Kubernetes estandarizo una forma de migración que proporciona a los desarroladores de software con comandos integrados para la implementación de una forma eficaz dentro de las apps. Siendo que puede introducir dstintos cambios en apps para ampliar o reducirlas en función de necesidades dentro del entorno. En el caso de Kubernete ofrece una portabildiad para distintos entornos locales en la nube para detallar una infraesctructura en apps para la eliminación en la necesidad de dependencias de applicaciones especificas dentro de la plataforma facilitando un traslado entre distintos proveedores con un meno esfuerzo en los datos centrales.
+
+- 6° DevOps empresariales.
+se enfoca en la actualización e implementación de applicaciones rapidamente donde se vuelve fundamental para el exito del negició, con Kubernetes da cierta facilidada a los equipos desarrolladores como el mantenimiento de los sistemas de Software para una incrementación en la agildidad general o la interfaz de la Api de Kubernetez. Donde permite en los desarroladores de software o otras partes que son intereses de DevOps. como sería Acceso, implementación, actualizacion y la optimizac ion para los ecosistemas de contenedores.
+
+En un caso de CI/CD se significa en Integración continua (CI) y Entrega Continua (CD) en la cual se convirtio en un aspecto clave en el desarrollo del software. Con CI Y CD agiliza la codificacación en las pruebas y implementacion de las aplicaciones proporcionadas pro el equipo siendo que un unico repositorio se pueda almacenar el trabajo y las herramientas que se pueda automatizar para la combinación y así probar el codigo de forma coherente y así garantizando su funcionamiento.
+
+Con Kubernetes desempeña un papel importante en donde CI/CD nativas de una nube al automatizar donde la implementación de contendores donde su entorno de infraesctructura de la nube para garantizar en un uso eficiente de los recursos.
 
 ---
