@@ -29,7 +29,18 @@ UML (*Unified Modeling Language*) es un estándar ISO para modelar sistemas de s
 
 ---
 
+# 01/07
+## Stack final del proyecto
 
+| Parte | Tecnología | Por qué |
+|---|---|---|
+| Frontend | Next.js + TailwindCSS | Un solo proyecto, API routes incluidas |
+| Base de datos | Supabase (PostgreSQL) | Gratis, tiene SDK para JS, panel visual, no necesita servidor propio |
+| Diagramas | Mermaid.js | Renderiza en el browser, nativo en GitHub |
+| IA | Anthropic API | Genera la sintaxis Mermaid |
+| GitHub | REST API | Lee branches del equipo, hace commits automáticos |
+| Historial | Supabase (tabla `diagrams`) | Persistente, accesible por todo el equipo |
+```
 
 ---
 
