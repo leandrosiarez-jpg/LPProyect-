@@ -1,3 +1,11 @@
+---
+título: Análisis de vulnerabilidades
+fecha: 2026-04-22
+etiquetas: [metodos de defensa, estrategias de diseñó]
+---
+
+---
+
 ## **Analisis de vulnerabilidades**
 #### (diagrama de Luca Bonamaison)
 
