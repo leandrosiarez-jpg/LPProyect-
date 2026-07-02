@@ -1,1 +1,6 @@
-
+---
+título: Título de mi documento
+fecha: 2026-04-22
+etiquetas: [markdown, yaml, tutorial]
+borrador: falso
+---
