@@ -1,5 +1,5 @@
 >[!CAUTION]
-> La suplantación de ip es ilegal cuando se usa para engañar o causar daño. Has sido advertido. 
+> La suplantación de ip es ilegal cuando se usa para engañar o causar daño. El Spoofing se salta el No Repudio. Has sido advertido. 
 
 ## IP Spoofing (Suplantación de IP)
 
