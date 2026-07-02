@@ -41,7 +41,3 @@ UML (*Unified Modeling Language*) es un estándar ISO para modelar sistemas de s
 | GitHub | REST API | Lee branches del equipo, hace commits automáticos |
 | Historial | Supabase (tabla `diagrams`) | Persistente, accesible por todo el equipo |
 ```
-
----
-
-*Stack: Next.js · Node.js · Mermaid.js · Anthropic API · GitHub REST API*
