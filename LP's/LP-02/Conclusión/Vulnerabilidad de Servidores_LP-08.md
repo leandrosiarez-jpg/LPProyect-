@@ -1,7 +1,7 @@
 # Análisis de Vulnerabilidades y Soluciones en la Conexión de Servidores de Videojuegos Online
 
 
-#Incompleto, uso de IA
+## (Incompleto, uso de IA)
 
 
 ## 1. Introducción
