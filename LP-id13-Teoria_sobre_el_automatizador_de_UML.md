@@ -40,4 +40,3 @@ UML (*Unified Modeling Language*) es un estándar ISO para modelar sistemas de s
 | IA | Anthropic API | Genera la sintaxis Mermaid |
 | GitHub | REST API | Lee branches del equipo, hace commits automáticos |
 | Historial | Supabase (tabla `diagrams`) | Persistente, accesible por todo el equipo |
-```
