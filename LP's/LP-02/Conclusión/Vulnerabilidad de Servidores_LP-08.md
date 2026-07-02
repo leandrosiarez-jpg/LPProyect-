@@ -1,5 +1,9 @@
 # Análisis de Vulnerabilidades y Soluciones en la Conexión de Servidores de Videojuegos Online
 
+
+#Incompleto, uso de IA
+
+
 ## 1. Introducción
 
 Los videojuegos online dependen de una comunicación constante entre los jugadores y los servidores encargados de administrar las partidas.
