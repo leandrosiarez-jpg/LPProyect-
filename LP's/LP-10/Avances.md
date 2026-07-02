@@ -15,5 +15,11 @@
 
 **Visual Studio Code:** este programa se seleccionó como el editor de código principal por su ligereza y facilidad para integrar extensiones de depuración
 
-**Github Desktop:** es la herramienta visual para la gestión del repositorio y el control de versiones, permitiendo trabajar en conjunto de manera organizada y sin sobrecarga de comandos en la terminal  
+**Github Desktop:** es la herramienta visual para la gestión del repositorio y el control de versiones, permitiendo trabajar
+en conjunto de manera organizada y sin sobrecarga de comandos en la terminal
+
+### Fase 3: Configuración e Instalación del Entorno (En Proceso)
+* **Descarga de software:** Planificación de la instalación del intérprete de Python y el IDE (VS Code) en el equipo local.
+* **Vinculación con el repositorio:** Preparación para clonar el repositorio de GitHub mediante GitHub Desktop para sincronizar los archivos de código futuros.
+
 
