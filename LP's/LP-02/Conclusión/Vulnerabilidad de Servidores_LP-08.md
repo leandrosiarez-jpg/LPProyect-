@@ -1,36 +1,11 @@
 # Análisis de Vulnerabilidades y Soluciones en la Conexión de Servidores de Videojuegos Online
-
-
 ## (Incompleto, uso de IA)
-
-
-## 1. Introducción
-
-Los videojuegos online dependen de una comunicación constante entre los jugadores y los servidores encargados de administrar las partidas.
-
-Cuando un jugador inicia una partida, el cliente envía una solicitud al servidor. Este procesa la conexión, asigna una sesión y mantiene un intercambio continuo de información sobre las acciones realizadas durante el juego.
-
-Esta comunicación requiere una infraestructura estable debido a que los servidores deben encargarse de:
-
-- Mantener la sincronización entre jugadores.
-- Administrar las sesiones activas.
-- Almacenar información del progreso y estadísticas.
-- Garantizar disponibilidad del servicio.
-- Permitir escalabilidad frente al aumento de usuarios.
-
-Debido a la importancia de estos sistemas, pueden presentarse vulnerabilidades relacionadas con disponibilidad, seguridad de información y comunicación entre usuarios y servidores.
-
-El objetivo de este documento es analizar las principales vulnerabilidades presentes en la conexión de servidores de videojuegos online, resolver los problemas encontrados mediante medidas de seguridad y recomendar herramientas adecuadas para mejorar el funcionamiento del proyecto **LP-08 (LPProyect)**.
-
 ---
 
-# 2. Análisis de Vulnerabilidades
+## 2. Análisis de Vulnerabilidades
+### 2.1 Ataques DDoS (Distributed Denial of Service)
 
----
-
-# 2.1 Ataques DDoS (Distributed Denial of Service)
-
-## Descripción
+**Descripción**
 
 Un ataque DDoS consiste en enviar una gran cantidad de solicitudes o tráfico hacia un servidor con el objetivo de consumir sus recursos y provocar una interrupción del servicio.
 
