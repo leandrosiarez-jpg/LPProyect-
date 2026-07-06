@@ -1,5 +1,7 @@
-# Análisis de Vulnerabilidades y Soluciones en la Conexión de Servidores de Videojuegos Online
-
+---
+título: Análisis y resolución de vulnerabilidades (Servidor de videojuegos)
+fecha: 2026-04-22
+etiquetas: [vulnerabilidades, metodos de defensa, estrategias de diseñó]
 ---
 
 ## 1. Análisis de Vulnerabilidades
