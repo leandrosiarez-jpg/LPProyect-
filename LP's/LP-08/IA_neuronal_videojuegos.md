@@ -1,0 +1,11 @@
+# Servidores y Videojuegos 2: IAs Neuronales y su Potencial
+## ¿Que es una IA Neuronal?
+Una IA Neuronal es un sistema informatico inspirado en el funcionamiento del cerebro humano. Esta compuesta por entradas de informacion, capas de procesamiento y salidas o decisiones. El trabajo de la IA es encontrar patrones y puede ser entrenada en simulaciones para aprender diferentes tipos de actividades basandose en estimulos negativos y positivos, a esto se le llama "Reinforcement Learning".
+## Aplicacion a Videjuegos
+Tradicionalmente la generacion procedural se basa en matematicas rigidas, con las IAs neuronales eso puede cambiar. Herramientas de Upscaling basadas en IA pueden ahorrar muchisimo trabajo de memoria, cargando las texturas unicamente en el momento que sea relevante. Se puede incorporar esta inteligencia tambien a NPCs o enemigos para que aprendan a base de Reinforcement Learning y las acciones del jugador. De misma manera con dialogos, modelos de lenguaje siendo capaces de entablar conversaciones fluidas y con memoria a largo plazo sin ninguna clase de guion.
+Por ultimo, la IA es exepcional optimizando el trabajo de servidores, siendo capaz de predecir las acciones de los jugadores basado en un historial previo y tambien puede balancear/asignar automaticamente los recursos del servidor a tiempo real.
+## Impacto Etico y Social
+El impacto etico/social es inmediatamente visible para cualquiera que este en el rubro de desarrollo de videojuegos, la IA amenazando los puestos de trabajo de programadores junior, actores de voz, artistas, diseñadores, entre otros. Sin mencionar que la IA misma es entrenada en obras de arte ya existentes sin ninguna clase de consenso de parte de los artistas originales.
+Tambien es muy importante denotar que las empresas no dudaran en crear videojuegos toxicamente adictivos de forma intencional a base del uso de IA para maximizar beneficios y tiempo en pantalla, naturaleza de vivir en un sistema capitalista.
+## Conclusion
+La IA como herramienta y avance tecnologico es altamente impresionante y se podria aplicar de muchas maneras distintas en formas de entretenimiento, especialmente videojuegos, sin embargo, no hay que dejar que eso nos ciegue de las potenciales y potentes consecuencias que presenta su uso. 
