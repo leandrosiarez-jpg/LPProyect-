@@ -1,1 +1,2 @@
 ## Conexion Servidores y Juego de Construccion 3: Proyecto Personal & Proyecto Grupal
+En este documento exploraremos las posibilidades de manejo de servidor y red que tiene el proyecto de grupo, este ultimo siendo un multijugador online 3vs3 con elementos de disparos y construccion con RNG. Evaluaremos que formas podrian favorar la optimizacion y funcionalidad limpia del juego intentando asegurar el mejor rendimiento posible.
