@@ -1,9 +1,9 @@
-# Introducción a GNS3 desde la Perspectiva de TGS
+# Introducción a GNS3
 
 ## ¿Qué es GNS3 y para qué sirve?
-GNS3 (Graphical Network Simulator-3) es un software de código abierto que permite emular diseños de redes complejos. Desde el enfoque de la **Teoría General de Sistemas (TGS)**, GNS3 actúa como un **metasistema** que permite diseñar, integrar y analizar subsistemas de red en un entorno virtualizado sumamente cercano a la realidad. A diferencia de los simuladores básicos, emula el comportamiento real de dispositivos (computadoras, routers, switches, firewalls) ejecutando sus sistemas operativos auténticos.
+GNS3 (Graphical Network Simulator-3) es un software de código abierto que permite emular diseños de redes complejos. GNS3 actúa como un **metasistema** que permite diseñar, integrar y analizar subsistemas de red en un entorno virtualizado sumamente cercano a la realidad. A diferencia de los simuladores básicos, emula el comportamiento real de dispositivos (computadoras, routers, switches, firewalls) ejecutando sus sistemas operativos auténticos.
 
-## Características Principales y Enfoque de Sistemas
+## Características Principales 
 * **Emulación Realista (Fidelidad del Sistema):** Permite replicar el comportamiento exacto de los elementos de un sistema de red real, minimizando la entropía al predecir fallos de configuración.
 * **Interfaz Intuitiva y Conectividad (Relaciones de Entrada/Salida):** Utiliza el formato Drag & Drop para estructurar la topología, facilitando la visualización de las interfaces y la interacción entre los distintos nodos del sistema.
 * **Integración Real (Sistemas Híbridos):** Tiene la capacidad de conectarse a redes físicas, permitiendo que el sistema emulado interactúe con el entorno exterior.
