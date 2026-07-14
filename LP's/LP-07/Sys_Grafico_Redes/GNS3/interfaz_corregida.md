@@ -1,4 +1,4 @@
-# Interfaz de GNS3: Componentes y Jerarquía del Sistema
+# Interfaz de GNS3
 
 ## ¿Qué es la interfaz de GNS3?
 La interfaz de GNS3 es el entorno gráfico (GUI) que funciona como el panel de control del sistema. Su objetivo es permitir al usuario interactuar, configurar y administrar las simulaciones de manera centralizada.
