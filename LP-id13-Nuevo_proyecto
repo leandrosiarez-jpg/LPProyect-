@@ -1,10 +1,12 @@
+**Fecha:** 16/07
+
 # Department 4.B
 
 *Un videojuego de terror psicológico desarrollado íntegramente con HTML, CSS y JavaScript.*
 
 ---
 
-# Acerca del proyecto
+## Acerca del proyecto
 
 **Department 4.B** es un videojuego de terror psicológico centrado en la exploración, la narrativa ambiental y la tensión emocional, dejando de lado los elementos tradicionales del género como el combate, los enemigos o los jumpscares.
 
@@ -14,7 +16,7 @@ El juego fue desarrollado utilizando **HTML, CSS y JavaScript**, permitiendo que
 
 ---
 
-# ¿Por qué HTML?
+## ¿Por qué HTML?
 
 Aunque HTML suele utilizarse para el desarrollo de sitios web, también permite crear aplicaciones interactivas complejas cuando se combina con CSS y JavaScript.
 
@@ -31,7 +33,7 @@ Gracias a JavaScript, es posible controlar completamente la lógica del juego, l
 
 ---
 
-# Relación con UML
+## Relación con UML
 
 Una de las principales ventajas de este proyecto es que su arquitectura puede representarse fácilmente mediante **UML (Unified Modeling Language)**.
 
@@ -55,7 +57,7 @@ Cada uno de estos módulos puede representarse mediante clases, componentes, est
 
 ---
 
-# Diagramas UML aplicables
+## Diagramas UML aplicables
 
 Debido a su arquitectura modular, **Department 4.B** puede representarse mediante diferentes tipos de diagramas UML, entre ellos:
 
@@ -70,7 +72,7 @@ Estos diagramas permiten documentar tanto el comportamiento del jugador como la 
 
 ---
 
-# Tecnologías utilizadas
+## Tecnologías utilizadas
 
 - HTML5
 - CSS3
@@ -80,7 +82,7 @@ Estos diagramas permiten documentar tanto el comportamiento del jugador como la 
 
 ---
 
-# Objetivo del proyecto
+## Objetivo del proyecto
 
 El objetivo principal de **Department 4.B** es demostrar que es posible desarrollar un videojuego narrativo de terror psicológico utilizando únicamente tecnologías web, manteniendo una arquitectura clara, modular y fácilmente documentable mediante UML.
 
@@ -88,11 +90,11 @@ Además de servir como experiencia interactiva, el proyecto también funciona co
 
 ---
 
-# Estado actual
+## Estado actual
 
 **Versión actual:** Alpha 0.3
 
-## Funcionalidades implementadas
+### Funcionalidades implementadas
 
 - Menú principal.
 - Movimiento del jugador.
@@ -109,7 +111,7 @@ Además de servir como experiencia interactiva, el proyecto también funciona co
 
 ---
 
-# Desarrollo futuro
+## Desarrollo futuro
 
 Las próximas versiones continuarán expandiendo la historia, incorporarán nuevos días, eventos, mecánicas e interacciones, manteniendo siempre una arquitectura modular que facilite tanto el mantenimiento del código como su representación mediante diagramas UML.
 
