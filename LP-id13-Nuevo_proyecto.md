@@ -1,6 +1,7 @@
+# 16/07
+
 # Department 4.B
 Department 4.B es un videojuego de terror psicologico desarrollado integramente con HTML, CSS y JavaScript, centrado en la exploracion, la narrativa ambiental y la tension emocional, dejando de lado elementos tradicionales del genero como el combate, los enemigos o los jumpscares.
-Fecha: 16/07
 ---
 ## 1. Acerca del proyecto
 El jugador controla a un protagonista que vive solo en un departamento. A lo largo de varios dias debera completar tareas cotidianas mientras el entorno comienza a cambiar de forma cada vez mas inquietante.
