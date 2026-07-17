@@ -1,10 +1,10 @@
 ---
-título: Análisis y resolución de vulnerabilidades (Servidor de videojuegos)
+título: Análisis y resolución de problematicas en servidores
 fecha: 2026-04-22
 etiquetas: [vulnerabilidades, metodos de defensa, estrategias de diseñó]
 ---
 
-## 1. Análisis de Vulnerabilidades
+## 1. Servidor de empresa (cliente - servidor)
 
 ### **1.1 Ataques DDoS (Distributed Denial of Service)**
 
@@ -180,7 +180,7 @@ Implementar:
 
 ---
 
-###  **2. Tabla de Vulnerabilidades y Soluciones**
+###  **1.6. Tabla de Vulnerabilidades y Soluciones**
 
 | Vulnerabilidad | Impacto | Probabilidad | Solución | Herramientas |
 |---|---|---|---|---|
@@ -192,7 +192,7 @@ Implementar:
 
 ---
 
-### **3. Arquitectura de Seguridad Recomendada**
+### **1.7. Arquitectura de Seguridad Recomendada**
 
 La arquitectura propuesta para mejorar la seguridad y disponibilidad del sistema es:
 
@@ -236,7 +236,7 @@ Permite detectar problemas de rendimiento y posibles ataques.
 
 ---
 
-### **5. Herramientas Recomendadas**
+### **1.8. Herramientas Recomendadas**
 
 **Herramientas de Disponibilidad y Escalabilidad**
 
@@ -269,10 +269,30 @@ Permiten detectar fallas rápidamente y mejorar la administración del sistema.
 
 ---
 
-### **4. Conclusión**
+### **1.9. Conclusión**
 
 El análisis realizado demuestra que los principales riesgos en la conexión de servidores de videojuegos online están relacionados con ataques externos, pérdida de información, problemas de escalabilidad y seguridad en la comunicación.
 
 Para mejorar el proyecto LP-08 se recomienda implementar una arquitectura basada en servicios escalables, acompañada de herramientas de protección como mitigación DDoS, firewalls, sistemas IDS/IPS, cifrado de comunicaciones, autenticación segura y monitoreo constante.
 
 La combinación de estas tecnologías permitirá obtener un sistema más estable, seguro y preparado para soportar una gran cantidad de jugadores manteniendo una conexión confiable y eficiente.
+
+---
+
+## 2. Servidor P2P (Peer-to-Peer)
+
+### **2.1 Exposicion de la IP**
+
+Cada nodo conoce la IP de los demás para poder conectarse. Esto permite que cualquier jugador identifique la ubicación aproximada de otro (geolocalización por IP) o lo someta a ataques dirigidos (DDoS, port scanning), algo que en un modelo cliente-servidor tradicional nunca se expone.
+
+---
+
+### **2.2 Man-in-the-Middle (MITM)**
+
+Al no haber un servidor central que valide y cifre las comunicaciones de forma uniforme, un atacante en la misma red o interceptando el tráfico pueden posicionarse entre dos nodos, leer o alterar los datos. 
+
+Cada nodo conoce la IP de los demás para poder conectarse. Esto permite que cualquier jugador identifique la ubicación aproximada de otro (geolocalización por IP) o lo someta a ataques dirigidos (DDoS, port scanning), algo que en un modelo cliente-servidor tradicional nunca se expone.
+
+---
+
+### **2.2 Man-in-the-Middle (MITM)**
