@@ -1,0 +1,116 @@
+# Department 4.B
+
+*Un videojuego de terror psicológico desarrollado íntegramente con HTML, CSS y JavaScript.*
+
+---
+
+# Acerca del proyecto
+
+**Department 4.B** es un videojuego de terror psicológico centrado en la exploración, la narrativa ambiental y la tensión emocional, dejando de lado los elementos tradicionales del género como el combate, los enemigos o los jumpscares.
+
+El jugador controla a un protagonista que vive solo en un departamento. A lo largo de varios días deberá completar tareas cotidianas mientras el entorno comienza a cambiar de forma cada vez más inquietante. El objetivo principal del proyecto es generar incomodidad a través del diseño del escenario, el sonido, la repetición y el deterioro psicológico del protagonista.
+
+El juego fue desarrollado utilizando **HTML, CSS y JavaScript**, permitiendo que pueda ejecutarse directamente desde cualquier navegador moderno sin necesidad de utilizar motores de videojuegos como Unity o Godot.
+
+---
+
+# ¿Por qué HTML?
+
+Aunque HTML suele utilizarse para el desarrollo de sitios web, también permite crear aplicaciones interactivas complejas cuando se combina con CSS y JavaScript.
+
+Elegir esta tecnología aporta varias ventajas:
+
+- Proyecto liviano y fácil de ejecutar.
+- Compatible con prácticamente cualquier navegador moderno.
+- Código organizado en módulos independientes.
+- Separación clara entre interfaz, lógica del juego y recursos.
+- Fácil mantenimiento y ampliación del proyecto.
+- No requiere motores externos ni instalaciones adicionales.
+
+Gracias a JavaScript, es posible controlar completamente la lógica del juego, los eventos, las interacciones, las transiciones y el comportamiento de cada escena.
+
+---
+
+# Relación con UML
+
+Una de las principales ventajas de este proyecto es que su arquitectura puede representarse fácilmente mediante **UML (Unified Modeling Language)**.
+
+El juego está dividido en diferentes sistemas, cada uno con una responsabilidad específica. Esta organización modular facilita la creación de diagramas UML para documentar tanto el funcionamiento del software como la relación entre sus componentes.
+
+Algunos de los sistemas principales son:
+
+- Administrador de días (Day Manager)
+- Administrador de objetivos (Objective Manager)
+- Controlador del jugador (Player Controller)
+- Sistema de interacción
+- Sistema de diálogos
+- Administrador de habitaciones
+- Administrador del edificio
+- Sistema de eventos
+- Sistema de audio
+- Administrador de escenas
+- Sistema de transiciones (Fade)
+
+Cada uno de estos módulos puede representarse mediante clases, componentes, estados o casos de uso, permitiendo comprender fácilmente la estructura interna del proyecto.
+
+---
+
+# Diagramas UML aplicables
+
+Debido a su arquitectura modular, **Department 4.B** puede representarse mediante diferentes tipos de diagramas UML, entre ellos:
+
+- Diagrama de Casos de Uso (Use Case Diagram)
+- Diagrama de Clases (Class Diagram)
+- Diagrama de Secuencia (Sequence Diagram)
+- Diagrama de Actividades (Activity Diagram)
+- Diagrama de Estados (State Machine Diagram)
+- Diagrama de Componentes (Component Diagram)
+
+Estos diagramas permiten documentar tanto el comportamiento del jugador como la interacción entre los distintos sistemas que componen el juego.
+
+---
+
+# Tecnologías utilizadas
+
+- HTML5
+- CSS3
+- JavaScript (Vanilla)
+- Pixel Art
+- Web Audio API
+
+---
+
+# Objetivo del proyecto
+
+El objetivo principal de **Department 4.B** es demostrar que es posible desarrollar un videojuego narrativo de terror psicológico utilizando únicamente tecnologías web, manteniendo una arquitectura clara, modular y fácilmente documentable mediante UML.
+
+Además de servir como experiencia interactiva, el proyecto también funciona como un ejemplo práctico de análisis y diseño de software, permitiendo representar su funcionamiento mediante distintos diagramas UML utilizados en Ingeniería de Software.
+
+---
+
+# Estado actual
+
+**Versión actual:** Alpha 0.3
+
+## Funcionalidades implementadas
+
+- Menú principal.
+- Movimiento del jugador.
+- Sistema de interacción.
+- Sistema de diálogos.
+- Progresión por días.
+- Objetivos dinámicos.
+- Transiciones con fundido (Fade).
+- Exploración del departamento.
+- Exploración del edificio.
+- Eventos guionizados.
+- Cambios ambientales progresivos.
+- Secuencias de terror psicológico.
+
+---
+
+# Desarrollo futuro
+
+Las próximas versiones continuarán expandiendo la historia, incorporarán nuevos días, eventos, mecánicas e interacciones, manteniendo siempre una arquitectura modular que facilite tanto el mantenimiento del código como su representación mediante diagramas UML.
+
+La estructura del proyecto fue diseñada para permitir agregar nuevas habitaciones, pisos, objetos interactivos y eventos sin modificar el funcionamiento de los sistemas ya existentes, favoreciendo así la escalabilidad y la reutilización del código.
