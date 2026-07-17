@@ -78,12 +78,16 @@ Objeto.
 ---
 
 ## Capas subyacentes.
-Tipo: Mac & Dac
+Tipo: **Mac & Dac**
 
 Sujeto.
+- Host & redes
 
 Atributo.
+- Información de las redes por capa
 
 Accion.
+- Tráspaso de información por nivel de capa
 
 Objeto.
+- Contenedor & Capa.
