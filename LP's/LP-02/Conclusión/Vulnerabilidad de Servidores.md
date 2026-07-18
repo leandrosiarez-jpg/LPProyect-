@@ -283,11 +283,27 @@ La combinación de estas tecnologías permitirá obtener un sistema más estable
 
 ### **2.1 Exposicion de la IP**
 
+<ins>**Descripción**</ins>
+
 Cada nodo conoce la IP de los demás para poder conectarse. Esto permite que cualquier jugador identifique la ubicación aproximada de otro (geolocalización por IP) o lo someta a ataques dirigidos (DDoS, port scanning), algo que en un modelo cliente-servidor tradicional nunca se expone.
+
+### Solución:
+
+Implementar:
+
+- STUN/TURN
+- Photon Engine
+- Steam Networking Scokets
+- Unity Realy / Unity Netcode for GameObjects 
+- DTLS
+- libsodium / NaCI
+- Noise Protocol Framework
 
 ---
 
 ### **2.2 Man-in-the-Middle (MITM)**
+
+<ins>**Descripción**</ins>
 
 Al no haber un servidor central que valide y cifre las comunicaciones de forma uniforme, un atacante en la misma red o interceptando el tráfico pueden posicionarse entre dos nodos, leer o alterar los datos. 
 
@@ -295,4 +311,16 @@ Cada nodo conoce la IP de los demás para poder conectarse. Esto permite que cua
 
 ---
 
-### **2.2 Man-in-the-Middle (MITM)**
+### **Amplificación de tráfico**
+
+<ins>**Descripción**</ins>
+
+El protoco P2P usa UDP, es susceptible a ataques de amplificación. Un ataquente puede enviar paquetes pequeños falsificando la IP de la víctima, y los nodos responden con paquetes mucho mas grandes hacia esa IP falsificada, saturando la conexion.
+
+---
+
+### **Vulnerabilidad del NAT traversal (STUN/TURN/UPnP)**
+
+<ins>**Descripción**</ins>
+
+Los mecanismo usados para esquivar el NAT pueden ser explotaos, un UPnP mal configurado permite que un atacante en la misma red local abra puertos no autorizados en el router de la víctima.
