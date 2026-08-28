@@ -1,34 +1,16 @@
-# Análisis de Vulnerabilidades y Soluciones en la Conexión de Servidores de Videojuegos Online
-
-## 1. Introducción
-
-Los videojuegos online dependen de una comunicación constante entre los jugadores y los servidores encargados de administrar las partidas.
-
-Cuando un jugador inicia una partida, el cliente envía una solicitud al servidor. Este procesa la conexión, asigna una sesión y mantiene un intercambio continuo de información sobre las acciones realizadas durante el juego.
-
-Esta comunicación requiere una infraestructura estable debido a que los servidores deben encargarse de:
-
-- Mantener la sincronización entre jugadores.
-- Administrar las sesiones activas.
-- Almacenar información del progreso y estadísticas.
-- Garantizar disponibilidad del servicio.
-- Permitir escalabilidad frente al aumento de usuarios.
-
-Debido a la importancia de estos sistemas, pueden presentarse vulnerabilidades relacionadas con disponibilidad, seguridad de información y comunicación entre usuarios y servidores.
-
-El objetivo de este documento es analizar las principales vulnerabilidades presentes en la conexión de servidores de videojuegos online, resolver los problemas encontrados mediante medidas de seguridad y recomendar herramientas adecuadas para mejorar el funcionamiento del proyecto **LP-08 (LPProyect)**.
-
+---
+título: Análisis y resolución de vulnerabilidades (Servidor de videojuegos)
+fecha: 2026-04-22
+etiquetas: [vulnerabilidades, metodos de defensa, estrategias de diseñó]
 ---
 
-# 2. Análisis de Vulnerabilidades
+## 1. Análisis de Vulnerabilidades
 
----
+### **1.1 Ataques DDoS (Distributed Denial of Service)**
 
-# 2.1 Ataques DDoS (Distributed Denial of Service)
+<ins>**Descripción**</ins>
 
-## Descripción
-
-Un ataque DDoS consiste en enviar una gran cantidad de solicitudes o tráfico hacia un servidor con el objetivo de consumir sus recursos y provocar una interrupción del servicio.
+Un ataque DDoS consiste en enviar una gran cantidad de solicitudes o tráfico hacia un servidor con el objetivo de consumir sus recursos y provocar una interrupción del servicio. Los videojuegos requieren una conexión rápida y estable, por lo que una interrupción afecta directamente la experiencia del usuario.
 
 En un videojuego online puede generar:
 
@@ -38,30 +20,17 @@ En un videojuego online puede generar:
 - Imposibilidad de crear o acceder a partidas.
 - Caída completa del servidor.
 
-Los videojuegos requieren una conexión rápida y estable, por lo que una interrupción afecta directamente la experiencia del usuario.
-
-## Impacto
-
-**Alto**
-
 Una caída del servidor afecta a todos los usuarios conectados e impide el acceso al servicio.
 
-## Probabilidad
-
-**Alta**
-
-Los servidores públicos pueden ser objetivos frecuentes debido a la cantidad de usuarios y servicios disponibles.
-
-## Solución
-
-Implementar:
+### Solución:
+Implementar
 
 - Sistemas de mitigación contra ataques DDoS.
 - Balanceadores de carga.
 - Distribución del servicio mediante múltiples servidores.
 - Filtrado del tráfico antes de llegar al servidor principal.
 
-## Herramientas recomendadas
+**Herramientas recomendadas**
 
 - Cloudflare DDoS Protection.
 - AWS Shield.
@@ -70,9 +39,9 @@ Implementar:
 
 ---
 
-# 2.2 Robo de cuentas y accesos no autorizados
+### **1.2 Robo de cuentas y accesos no autorizados**
 
-## Descripción
+<ins>**Descripción**</ins>
 
 Los servidores almacenan información relacionada con los usuarios, como:
 
@@ -81,8 +50,6 @@ Los servidores almacenan información relacionada con los usuarios, como:
 - Estadísticas.
 - Configuraciones personales.
 
-Si un atacante obtiene acceso a una cuenta puede modificar, robar o eliminar información.
-
 Los métodos utilizados pueden incluir:
 
 - Robo de contraseñas.
@@ -90,19 +57,7 @@ Los métodos utilizados pueden incluir:
 - Filtración de credenciales.
 - Secuestro de sesiones.
 
-## Impacto
-
-**Alto**
-
-Puede provocar pérdida de información personal y acceso no autorizado al sistema.
-
-## Probabilidad
-
-**Alta**
-
-Las cuentas de videojuegos poseen información valiosa y requieren protección constante.
-
-## Solución
+### Solución:
 
 Implementar:
 
@@ -112,7 +67,7 @@ Implementar:
 - Control de permisos.
 - Validación de identidad del usuario.
 
-## Herramientas recomendadas
+**Herramientas recomendadas**
 
 - OAuth.
 - JWT.
@@ -121,13 +76,11 @@ Implementar:
 
 ---
 
-# 2.3 Caída o sobrecarga del servidor
+### **1.3 Caída o sobrecarga del servidor**
 
-## Descripción
+<ins>**Descripción**</ins>
 
-Los servidores pueden presentar fallas cuando reciben una cantidad de usuarios o solicitudes superior a su capacidad.
-
-Situaciones que pueden provocar una sobrecarga:
+Los servidores pueden presentar fallas cuando reciben una cantidad de usuarios o solicitudes superior a su capacidad. Situaciones que pueden provocar una sobrecarga:
 
 - Lanzamiento de nuevas actualizaciones.
 - Eventos con muchos jugadores.
@@ -136,19 +89,7 @@ Situaciones que pueden provocar una sobrecarga:
 
 La falta de escalabilidad puede provocar lentitud, errores de conexión o interrupción del servicio.
 
-## Impacto
-
-**Alto**
-
-La disponibilidad del videojuego depende del correcto funcionamiento de los servidores.
-
-## Probabilidad
-
-**Media**
-
-Depende de la capacidad de planificación y recursos disponibles.
-
-## Solución
+### Solución:
 
 Implementar:
 
@@ -157,7 +98,7 @@ Implementar:
 - Balanceadores de carga.
 - Infraestructura distribuida.
 
-## Herramientas recomendadas
+**Herramientas recomendadas**
 
 - Kubernetes.
 - Docker.
@@ -166,18 +107,16 @@ Implementar:
 
 ---
 
-# 2.4 Pérdida o corrupción de datos
+### **1.4 Pérdida o corrupción de datos**
 
-## Descripción
+<ins>**Descripción**</ins>
 
-Los servidores almacenan información importante del videojuego:
+Los servidores almacenan información importante del videojuego cualquier fluctiación/falla del sistema puede provocar pérdida permanente o corrupción de datos:
 
 - Progreso de usuarios.
 - Estadísticas.
 - Configuraciones.
 - Información de partidas.
-
-Una falla del sistema puede provocar pérdida permanente o corrupción de datos.
 
 Las causas pueden ser:
 
@@ -186,19 +125,9 @@ Las causas pueden ser:
 - Ataques externos.
 - Errores humanos.
 
-## Impacto
-
-**Alto**
-
-La pérdida de datos afecta directamente a los usuarios y puede provocar pérdida de confianza.
-
-## Probabilidad
-
-**Alta**
-
 Todo sistema que almacena información puede sufrir fallos si no cuenta con mecanismos de respaldo.
 
-## Solución
+### Solución
 
 Implementar:
 
@@ -207,7 +136,7 @@ Implementar:
 - Sistemas de recuperación ante fallos.
 - Control de acceso a la información.
 
-## Herramientas recomendadas
+**Herramientas recomendadas**
 
 - Servicios de Backup Cloud.
 - Bases de datos replicadas.
@@ -215,20 +144,16 @@ Implementar:
 
 ---
 
-# 2.5 Interceptación y manipulación de comunicación
+### **1.5 Interceptación y manipulación de comunicación**
 
-## Descripción
+<ins>**Descripción**</ins>
 
-Los videojuegos online mantienen una comunicación constante entre el cliente y el servidor mediante el intercambio de información.
-
-Durante esta comunicación pueden enviarse:
+Los videojuegos online mantienen una comunicación constante entre el cliente y el servidor mediante el intercambio de información y si la comunicación no está protegida,  un atacante podría interceptar o modificar información. Durante esta comunicación pueden enviarse:
 
 - Datos de sesión.
 - Información del jugador.
 - Solicitudes de conexión.
 - Datos de la partida.
-
-Si la comunicación no está protegida, un atacante podría interceptar o modificar información.
 
 Ejemplos de ataques:
 
@@ -237,19 +162,7 @@ Ejemplos de ataques:
 - Robo de información.
 - Modificación de datos durante la transmisión.
 
-## Impacto
-
-**Alto**
-
-Puede comprometer la confidencialidad e integridad de los datos enviados.
-
-## Probabilidad
-
-**Media**
-
-Depende de los protocolos utilizados y de las medidas de seguridad aplicadas.
-
-## Solución
+### Solución
 
 Implementar:
 
@@ -258,7 +171,7 @@ Implementar:
 - Validación de solicitudes.
 - Control de acceso a servicios.
 
-## Herramientas recomendadas
+**Herramientas recomendadas**
 
 - TLS/SSL.
 - Firewalls.
@@ -267,7 +180,7 @@ Implementar:
 
 ---
 
-# 3. Tabla de Vulnerabilidades y Soluciones
+###  **2. Tabla de Vulnerabilidades y Soluciones**
 
 | Vulnerabilidad | Impacto | Probabilidad | Solución | Herramientas |
 |---|---|---|---|---|
@@ -279,7 +192,7 @@ Implementar:
 
 ---
 
-# 4. Arquitectura de Seguridad Recomendada
+### **3. Arquitectura de Seguridad Recomendada**
 
 La arquitectura propuesta para mejorar la seguridad y disponibilidad del sistema es:
 
@@ -299,33 +212,33 @@ La arquitectura propuesta para mejorar la seguridad y disponibilidad del sistema
 
 
 
-## Componentes principales
+### Componentes principales
 
-### Firewall
+<ins>**Firewall**</ins>
 
 Permite controlar conexiones entrantes y bloquear accesos no autorizados.
 
-### Protección DDoS
+<ins>**Protección DDoS**</ins>
 
 Detecta y filtra tráfico malicioso antes de que afecte al servidor.
 
-### Balanceador de carga
+<ins>**Balanceador de carga**</ins>
 
 Distribuye las solicitudes entre diferentes servidores para evitar sobrecargas.
 
-### Servicios Cloud
+<ins>**Servicios Cloud**</ins>
 
 Permiten aumentar o reducir recursos según la cantidad de usuarios conectados.
 
-### Monitoreo
+<ins>**Monitoreo**</ins>
 
 Permite detectar problemas de rendimiento y posibles ataques.
 
 ---
 
-# 5. Herramientas Recomendadas
+### **5. Herramientas Recomendadas**
 
-## Herramientas de Disponibilidad y Escalabilidad
+**Herramientas de Disponibilidad y Escalabilidad**
 
 - Balanceadores de carga.
 - Kubernetes.
@@ -335,9 +248,7 @@ Permite detectar problemas de rendimiento y posibles ataques.
 
 Estas herramientas permiten mantener el servicio disponible y adaptarse al crecimiento de usuarios.
 
----
-
-## Herramientas de Ciberseguridad y Mitigación
+**Herramientas de Ciberseguridad y Mitigación**
 
 - Sistemas de mitigación DDoS.
 - Firewalls.
@@ -347,9 +258,7 @@ Estas herramientas permiten mantener el servicio disponible y adaptarse al creci
 
 Estas soluciones protegen la infraestructura y la información de los usuarios.
 
----
-
-## Herramientas de Gestión y Monitoreo
+**Herramientas de Gestión y Monitoreo**
 
 - Sistemas de métricas.
 - Análisis de protocolos.
@@ -360,32 +269,7 @@ Permiten detectar fallas rápidamente y mejorar la administración del sistema.
 
 ---
 
-## Modelo de Implementación del Juego
-
-Para mejorar la seguridad del intercambio de información se recomienda utilizar:
-
-## Modelo Autoritativo
-
-El servidor mantiene el control principal sobre el estado del juego.
-
-Ventajas:
-
-- Mayor seguridad.
-- Menor dependencia del cliente.
-- Mejor control de información.
-
-## Modelo de Predicción
-
-Permite reducir la sensación de retraso realizando predicciones del movimiento del jugador y sincronizando posteriormente con el servidor.
-
-Ventajas:
-
-- Menor latencia percibida.
-- Mejor experiencia del usuario.
-
----
-
-# 6. Conclusión
+### **4. Conclusión**
 
 El análisis realizado demuestra que los principales riesgos en la conexión de servidores de videojuegos online están relacionados con ataques externos, pérdida de información, problemas de escalabilidad y seguridad en la comunicación.
 
