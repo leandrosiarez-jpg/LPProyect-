@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conexion local con proceso de servicio</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <audio id="musica" src="music/Mundo_Gaturro_Soundtrack.mp3" loop preload="auto"></audio>
+
+  <header class="topbar">
+    <h1>Conexion local &middot; Cliente / Servicio</h1>
+    <span id="estado" class="badge desconectado">DESCONECTADO</span>
+  </header>
+
+  <main class="layout">
+    <section class="panel info">
+      <h2>Implicancias de red</h2>
+      <p class="consigna">
+        Conexion local con implicancias de conexion de red con un proceso de
+        servicio hacia una de las puntas (modelo cliente-servidor).
+      </p>
+
+      <ul class="datos">
+        <li><span>Punta cliente</span><code id="cli-local">--</code></li>
+        <li><span>Destino (servicio)</span><code id="cli-destino">ws://localhost:8080</code></li>
+        <li><span>Transporte</span><code>TCP / WebSocket</code></li>
+        <li><span>Puerto local</span><code id="cli-puerto">--</code></li>
+      </ul>
+
+      <div class="controles">
+        <button id="btn-conectar" class="btn primary">Conectar</button>
+        <button id="btn-desconectar" class="btn" disabled>Desconectar</button>
+        <button id="btn-ping" class="btn" disabled>Enviar trama</button>
+      </div>
+
+      <div class="envio">
+        <input id="texto" type="text" placeholder="Mensaje hacia el proceso de servicio..." />
+        <button id="btn-enviar" class="btn primary" disabled>Enviar</button>
+      </div>
+    </section>
+
+    <section class="panel log">
+      <h2>Trazas de la conexion</h2>
+      <div id="consola" class="consola"></div>
+    </section>
+  </main>
+
+  <script src="client.js"></script>
+</body>
+</html>
