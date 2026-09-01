@@ -1,0 +1,29 @@
+{
+  "version": "3.0",
+  "timestamp": 1779418059.4422534,
+  "neuronas": {
+    "hola": {
+      "id": "c971f819",
+      "concepto": "hola",
+      "peso": 0.402,
+      "origen": "conversacion",
+      "padre_id": null,
+      "conexiones": {},
+      "activaciones": 1,
+      "nacimiento": 1779418037.7823222,
+      "ultima_activacion": 1779418037.78234,
+      "contextos": [
+        "hola clave"
+      ]
+    }
+  },
+  "palabras_candidatas": {
+    "clave": 1,
+    "háblame": 1,
+    "boluda": 1,
+    "mmm": 1
+  },
+  "historial": [
+    "hola"
+  ]
+}

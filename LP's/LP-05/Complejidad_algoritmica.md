@@ -21,4 +21,15 @@ Complejidad Logaritmica: El tiempo crece, pero cada vez más lento. Es extremada
 
 Complejidad Cuadrática: El tiempo crece de forma exponencial respecto al cuadrado de los datos. Si tienes 10 datos, hace 100 operaciones. Si tienes 1,000 datos, hace 1,000,000. Se empieza a poner muy lento con listas grandes.
 
-Manejo de Hardware de Servidores.
+### Manejo de Hardware de Servidores.
+
+## ¿que es el hardware de servidores? 
+
+El hardware del servidor se refiere a los componentes fisicos que conforman lo confoman y que constituyen la base de todas las tareas criticas que este realiza. este cuenta con una potencia de procesamiento superiorr, mayor capacidad de memoria, y soluciones de almacenamiento robustas para gestionar multiples demandas de multiples usuarios y aplicaciones que se ejecutan simultaneamente. El hardware del servidor permite.
+
+Pero, ¿por qué una empresa no optaría por una plataforma de nube pública, como las que ofrecen Google o Microsoft? Si bien la comodidad es un factor importante para muchas empresas, algunas organizaciones prefieren invertir en sus propios servidores internos o soluciones de nube privada por razones específicas. Por ejemplo, podrían necesitar gestionar datos altamente sensibles que requieren la máxima seguridad. Además, ciertas aplicaciones son demasiado complejas para migrarlas a una nube pública, lo que encarece el proceso. En estos casos, poseer y operar su propio hardware de servidor permite una mayor personalización y control sobre su infraestructura digital.
+
+diferencias entre servidores y pc
+cambios de disco con equipos encedido
+necesidades de placa de video 
+diferencia de componentes de servidores y pc 

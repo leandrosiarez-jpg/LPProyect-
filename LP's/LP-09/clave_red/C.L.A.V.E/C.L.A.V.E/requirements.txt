@@ -1,0 +1,30 @@
+# CLAVE v3.0 — Dependencias
+#
+# MÍNIMO (solo texto, sin voz):
+#   Sin dependencias externas. CLAVE funciona con Python 3.10+ puro.
+#
+# RECOMENDADO (con voz local):
+pyttsx3>=2.90          # TTS local, sin internet
+SpeechRecognition>=3.10.0  # STT con Google o Vosk
+pyaudio>=0.2.13        # Micrófono (requiere portaudio instalado en el OS)
+#
+# ALTERNATIVA TTS (si pyttsx3 falla):
+# gTTS>=2.3.0          # TTS via Google (requiere internet)
+# pygame>=2.5.0        # Para reproducir audio de gTTS
+#
+# PDF (opcional):
+# pdfplumber>=0.10.0   # Lectura de PDFs
+#
+# STT OFFLINE (opcional, sin internet):
+# vosk>=0.3.45         # Reconocimiento offline
+#   → Descargar modelo español: https://alphacephei.com/vosk/models
+#   → Descomprimir en: CLAVE/modelos/vosk-es/
+#
+# INSTALACIÓN RÁPIDA (recomendado):
+#   pip install pyttsx3 SpeechRecognition pyaudio
+#
+# En Linux, antes de pyaudio:
+#   sudo apt install portaudio19-dev python3-pyaudio
+#
+# En macOS:
+#   brew install portaudio && pip install pyaudio
