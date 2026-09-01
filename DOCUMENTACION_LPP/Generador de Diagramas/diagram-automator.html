@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Automatizador de diagramas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background: #10131a;
+    color: #e7eaf1;
+    font-family: 'IBM Plex Sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  textarea::placeholder { color: #4a5568; }
+  button { cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #2a2f3a; border-radius: 6px; }
+
+  #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+  header {
+    padding: 18px 26px;
+    border-bottom: 1px solid #21262f;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #6b7382;
+    letter-spacing: 0.08em;
+  }
+  h1 { margin: 2px 0 0; font-size: 20px; font-weight: 600; }
+
+  .body-row { flex: 1; display: flex; min-height: 0; }
+
+  .left-panel {
+    width: 380px;
+    min-width: 380px;
+    border-right: 1px solid #21262f;
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+    gap: 14px;
+    overflow-y: auto;
+  }
+  .section-label {
+    font-size: 11.5px;
+    color: #8a93a6;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 11.5px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #2a2f3a;
+    background: #171b24;
+    color: #c3c9d6;
+  }
+  .input-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .input-head-actions { display: flex; gap: 6px; }
+  .btn-ghost {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid #2a2f3a;
+    background: transparent;
+    color: #8a93a6;
+  }
+  textarea#jsonInput {
+    width: 100%;
+    height: 340px;
+    background: #0d1015;
+    border: 1px solid #21262f;
+    border-radius: 8px;
+    color: #e7eaf1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 12px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .mode-btn {
+    font-size: 11.5px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #2a2f3a;
+    background: #171b24;
+    color: #c3c9d6;
+    font-weight: 400;
+  }
+  .mode-btn.active {
+    border: 1px solid #7aa7ff;
+    background: #7aa7ff1a;
+    color: #7aa7ff;
+    font-weight: 600;
+  }
+  .panel-box { border-radius: 8px; padding: 10px; }
+  .panel-errors { border: 1px solid #7a3535; background: #2a1616; }
+  .panel-warnings { border: 1px solid #6b5a20; background: #211d10; }
+  .panel-title-err { font-size: 11px; color: #ff8a8a; font-weight: 600; margin-bottom: 4px; }
+  .panel-title-warn { font-size: 11px; color: #f2c94c; font-weight: 600; margin-bottom: 4px; }
+  .panel-line-err { font-size: 11.5px; color: #ffb3b3; line-height: 1.5; }
+  .panel-line-warn { font-size: 11.5px; color: #e0cf94; line-height: 1.5; }
+
+  .right-panel {
+    flex: 1;
+    overflow: auto;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+  }
+  .canvas-frame {
+    border: 1px solid #21262f;
+    border-radius: 10px;
+    background: #12151c;
+    padding: 16px;
+  }
+  .empty-state {
+    margin: auto;
+    text-align: center;
+    color: #4a5568;
+    max-width: 360px;
+  }
+  .empty-state-text { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  .pipeline-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .pipeline-stage {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    padding: 5px 9px;
+    border-radius: 5px;
+    border: 1px solid #2a2f3a;
+    color: #5a6272;
+    background: transparent;
+    transition: all 200ms ease;
+  }
+  .pipeline-arrow { color: #2a2f3a; font-size: 12px; transition: color 200ms; }
+  .pipeline-mode {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-weight: 600;
+  }
+
+  /* ---------- Pantalla previa (landing) ---------- */
+  #app { display: none; }
+
+  #landingScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 24px;
+  }
+  .landing-content {
+    max-width: 520px;
+    text-align: left;
+  }
+  .landing-content h1 {
+    font-size: 26px;
+    font-weight: 600;
+    margin: 6px 0 18px;
+  }
+  .landing-text {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: #c3c9d6;
+    margin: 0 0 26px;
+  }
+  .landing-text strong { color: #e7eaf1; }
+  .skill-download-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 11px 18px;
+    border-radius: 8px;
+    border: 1px solid #7aa7ff;
+    background: #7aa7ff1a;
+    color: #7aa7ff;
+    font-weight: 600;
+  }
+  .skill-download-btn:hover { background: #7aa7ff2e; }
+
+  .next-btn {
+    position: fixed;
+    right: 26px;
+    top: 26px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: 1px solid #2a2f3a;
+    background: #171b24;
+    color: #e7eaf1;
+  }
+  .next-btn:hover { background: #21262f; border-color: #3a4150; }
+</style>
+</head>
+<body>
+<div id="landingScreen">
+  <div class="landing-content">
+    <div class="eyebrow">AUTOMATIZADOR DE DIAGRAMAS</div>
+    <h1>Antes de empezar</h1>
+    <p class="landing-text">
+      Esta herramienta convierte un JSON clave-valor en diagramas de árbol, flujo o UML.
+      Descargá el archivo <strong>SKILL.md</strong> y pasáselo a tu IA de confianza (Claude, ChatGPT, etc.)
+      antes de pedirle que te arme un diagrama: así sabrá generar el JSON con el formato correcto para esta
+      herramienta.
+    </p>
+    <button id="downloadSkillBtn" class="skill-download-btn" type="button">⬇ Descargar SKILL.md</button>
+  </div>
+  <button id="nextBtn" class="next-btn" type="button">Siguiente →</button>
+</div>
+
+<div id="app">
+  <header>
+    <div class="header-top">
+      <div>
+        <div class="eyebrow">KEY-VALUE → DIAGRAMA</div>
+        <h1>Automatizador de diagramas</h1>
+      </div>
+      <div class="input-head-actions" id="downloadActions" style="display:none;">
+        <button class="btn-ghost" id="downloadSvgBtn" type="button">Descargar SVG</button>
+        <button class="btn-ghost" id="downloadPngBtn" type="button">Descargar PNG</button>
+      </div>
+    </div>
+    <div class="pipeline-bar" id="pipelineBar"></div>
+  </header>
+
+  <div class="body-row">
+    <div class="left-panel">
+      <div>
+        <div class="section-label">EJEMPLOS</div>
+        <div class="chip-row" id="examplesRow"></div>
+      </div>
+
+      <div>
+        <div class="input-head">
+          <div class="section-label" style="margin-bottom:0;">ENTRADA (JSON key-value)</div>
+          <div class="input-head-actions">
+            <button class="btn-ghost" id="loadFileBtn" type="button">Cargar archivo</button>
+            <button class="btn-ghost" id="clearBtn" type="button">Limpiar</button>
+          </div>
+          <input id="fileInput" type="file" accept=".json,application/json" style="display:none" />
+        </div>
+        <textarea id="jsonInput" spellcheck="false" placeholder='{ &quot;Nodo&quot;: { &quot;type&quot;: &quot;process&quot;, &quot;next&quot;: &quot;OtroNodo&quot; } }'></textarea>
+      </div>
+
+      <div>
+        <div class="section-label">TIPO DE REPRESENTACIÓN</div>
+        <div class="chip-row" id="modeRow"></div>
+      </div>
+
+      <div id="messagesPanel"></div>
+    </div>
+
+    <div class="right-panel" id="rightPanel"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------------------------------------------------------------------
+     PANTALLA PREVIA: descarga de SKILL.md embebido en base64 + botón "Siguiente"
+  --------------------------------------------------------------------------- */
+
+  const SKILL_MD_B64 = "LS0tCm5hbWU6IGRpYWdyYW0tYXV0b21hdG9yCmRlc2NyaXB0aW9uOiBHZW5lcmEgZWwgSlNPTiBkZSBlbnRyYWRhIGNvcnJlY3RvIHBhcmEgZWwgQXV0b21hdGl6YWRvciBkZSBkaWFncmFtYXMgKGRpYWdyYW0tYXV0b21hdG9yLmh0bWwpLCB1bmEgaGVycmFtaWVudGEgcXVlIGNvbnZpZXJ0ZSB1biBvYmpldG8gSlNPTiBjbGF2ZS12YWxvciBlbiB1biBkaWFncmFtYSBkZSDDoXJib2wsIGZsdWpvIG8gVU1MLiBVc2FyIGN1YW5kbyBlbCB1c3VhcmlvIHBpZGEgcmVwcmVzZW50YXIgdW5hIGplcmFycXXDrWEsIHVuIHByb2Nlc28gY29uIHBhc29zL2RlY2lzaW9uZXMsIG8gY2xhc2VzIGNvbiBoZXJlbmNpYSwgcGFyYSBxdWUgZWwgcmVzdWx0YWRvIHNlIHB1ZWRhIHBlZ2FyIGRpcmVjdG8gZW4gZWwgQXV0b21hdGl6YWRvci4KLS0tCgojIEF1dG9tYXRpemFkb3IgZGUgZGlhZ3JhbWFzCgpDb252aWVydGUgdW4gSlNPTiBjbGF2ZS12YWxvciBlbiB1bm8gZGUgdHJlcyB0aXBvcyBkZSBkaWFncmFtYSwgcmVuZGVyaXphZG9zIGVuIFNWRyBkZW50cm8gZGVsIGFyY2hpdm8gYGRpYWdyYW0tYXV0b21hdG9yLmh0bWxgLiBFbCBtb2RvIHNlIGRldGVjdGEgYXV0b23DoXRpY2FtZW50ZSBhIHBhcnRpciBkZSBsYSBmb3JtYSBkZSBsb3MgZGF0b3MgKG8gc2UgcHVlZGUgZm9yemFyIGNvbiBlbCBzZWxlY3RvciAiQXV0byAvIMOBcmJvbCAvIEZsdWpvIC8gVU1MIiBkZSBsYSBoZXJyYW1pZW50YSkuCgojIyBEZXRlY2Npw7NuIGF1dG9tw6F0aWNhIGRlIG1vZG8KCjEuIFNpIG5pbmfDum4gdmFsb3IgZGUgcHJpbWVyIG5pdmVsIGVzIHVuIG9iamV0byBjb24gbGEgY2xhdmUgYCJ0eXBlImAg4oaSICoqw4FyYm9sKiouCjIuIFNpIGFsIG1lbm9zIHVuIHZhbG9yIHRpZW5lIGAidHlwZSJgIHBlcm8gbmluZ3VubyB2YWxlIGAiY2xhc3MiYCDihpIgKipGbHVqbyoqLgozLiBTaSBhbCBtZW5vcyB1biB2YWxvciB0aWVuZSBgInR5cGUiOiAiY2xhc3MiYCDihpIgKipVTUwqKi4KCiMjIDEuIMOBcmJvbCAodHJlZSkKClBhcmEgamVyYXJxdcOtYXMgc2ltcGxlczogY2F0ZWdvcsOtYXMsIGVzdHJ1Y3R1cmFzIGRlIGNhcnBldGFzLCB0YXhvbm9tw61hcywgb3JnYW5pZ3JhbWFzIHNpbiBjb21wb3J0YW1pZW50by4KCi0gTm8gc2UgdXNhIGxhIGNsYXZlIGAidHlwZSJgLgotIENhZGEgb2JqZXRvIGFuaWRhZG8gc2UgY29udmllcnRlIGVuIG5vZG8gaGlqbzsgY2FkYSBhcnJheSBzZSBjb252aWVydGUgZW4gdW5hIGxpc3RhIGRlIGhvamFzIChvIGRlIHN1Ym5vZG9zIHNpIHN1cyBlbGVtZW50b3Mgc29uIG9iamV0b3MpLgotIExvcyB2YWxvcmVzIHN0cmluZyBzaW1wbGVzIHNlIGNvbnZpZXJ0ZW4gZW4gbm9kb3MgaG9qYS4KCmBgYGpzb24KewogICJDb2NpbmEiOiB7CiAgICAiRW50cmFkYXMiOiBbIkVuc2FsYWRhIiwgIlNvcGEiXSwKICAgICJQb3N0cmVzIjogeyAiRnLDrW8iOiAiSGVsYWRvIiwgIkNhbGllbnRlIjogIlRhcnRhIHRpYmlhIiB9CiAgfQp9CmBgYAoKIyMgMi4gRmx1am8gKGZsb3cpCgpQYXJhIHByb2Nlc29zLCBhbGdvcml0bW9zLCBkaWFncmFtYXMgZGUgZmx1am8gY29uIGRlY2lzaW9uZXMuCgotIENhZGEgbm9kbyBlcyB1biBvYmpldG8gY29uIGAidHlwZSJgIGVuIHVubyBkZTogYHN0YXJ0YCwgYGVuZGAsIGBwcm9jZXNzYCwgYGRlY2lzaW9uYC4gQ3VhbHF1aWVyIG90cm8gdmFsb3IgZGUgYHR5cGVgIHNlIGRpYnVqYSBjb21vIG5vZG8gZ2Vuw6lyaWNvIChjb24gZWwgdGlwbyBhbm90YWRvIHkgYm9yZGUgcHVudGVhZG8pLgotIExhcyByZWxhY2lvbmVzIHNlIGFybWFuIGNvbiBjdWFscXVpZXIgcHJvcGllZGFkIHN0cmluZyBjdXlvIHZhbG9yIHNlYSBlbCBub21icmUgZGUgb3RybyBub2RvLiBMYXMgbcOhcyBjb211bmVzOgogIC0gYCJuZXh0ImAg4oaSIHNpZ3VpZW50ZSBwYXNvLgogIC0gYCJ0cnVlImAgLyBgImZhbHNlImAg4oaSIHJhbWFzIGRlIHVuYSBkZWNpc2nDs24gKGxhIHJhbWEgYGZhbHNlYCBzZSBkaWJ1amEgZW4gY29sb3IgZGlzdGludG8pLgotIFNpIG5vIGhheSBuaW5nw7puIG5vZG8gYCJzdGFydCJgLCBlbCBtb3RvciB1c2EgZWwgcHJpbWVyIG5vZG8gc2luIHJlbGFjaW9uZXMgZW50cmFudGVzLgoKYGBganNvbgp7CiAgIkluaWNpbyI6IHsgInR5cGUiOiAic3RhcnQiLCAibmV4dCI6ICJWYWxpZGFyIiB9LAogICJWYWxpZGFyIjogeyAidHlwZSI6ICJkZWNpc2lvbiIsICJ0cnVlIjogIkd1YXJkYXIiLCAiZmFsc2UiOiAiRXJyb3IiIH0sCiAgIkd1YXJkYXIiOiB7ICJ0eXBlIjogInByb2Nlc3MiLCAibmV4dCI6ICJGaW4iIH0sCiAgIkVycm9yIjogeyAidHlwZSI6ICJwcm9jZXNzIiwgIm5leHQiOiAiRmluIiB9LAogICJGaW4iOiB7ICJ0eXBlIjogImVuZCIgfQp9CmBgYAoKIyMgMy4gVU1MICh1bWwpCgpQYXJhIGNsYXNlcywgaGVyZW5jaWEsIHJlbGFjaW9uZXMgZW50cmUgZW50aWRhZGVzLgoKLSBDYWRhIG5vZG8gZXMgdW4gb2JqZXRvIGNvbiBgInR5cGUiOiAiY2xhc3MiYC4KLSBgImF0dHJpYnV0ZXMiYCB5IGAibWV0aG9kcyJgIHNvbiBhcnJheXMgZGUgc3RyaW5ncyB5IHNlIGxpc3RhbiBkZW50cm8gZGUgbGEgY2FqYSBkZSBsYSBjbGFzZS4KLSBDdWFscXVpZXIgb3RyYSBwcm9waWVkYWQgc3RyaW5nIHNlIGludGVycHJldGEgY29tbyByZWxhY2nDs24gaGFjaWEgb3RyYSBjbGFzZSAocG9yIGVqZW1wbG8gYCJleHRlbmRzImAsIGAiaW1wbGVtZW50cyJgLCBgInVzZXMiYCkuIExhcyByZWxhY2lvbmVzIGBleHRlbmRzYC9gaW1wbGVtZW50c2Agc2UgZGlidWphbiBjb24gbMOtbmVhIHB1bnRlYWRhLgoKYGBganNvbgp7CiAgIlVzdWFyaW8iOiB7CiAgICAidHlwZSI6ICJjbGFzcyIsCiAgICAiYXR0cmlidXRlcyI6IFsibm9tYnJlIiwgImVtYWlsIl0sCiAgICAibWV0aG9kcyI6IFsiaW5pY2lhclNlc2lvbigpIl0KICB9LAogICJBZG1pbmlzdHJhZG9yIjogewogICAgInR5cGUiOiAiY2xhc3MiLAogICAgImF0dHJpYnV0ZXMiOiBbIm5pdmVsQWNjZXNvIl0sCiAgICAibWV0aG9kcyI6IFsiZ2VzdGlvbmFyVXN1YXJpb3MoKSJdLAogICAgImV4dGVuZHMiOiAiVXN1YXJpbyIKICB9Cn0KYGBgCgojIyBSZWdsYXMgZ2VuZXJhbGVzIC8gcGl0ZmFsbHMKCi0gTGEgcmHDrXogZGVsIEpTT04gc2llbXByZSB0aWVuZSBxdWUgc2VyIHVuIG9iamV0byBjbGF2ZS12YWxvciAobnVuY2EgdW4gYXJyYXkgbmkgdW4gdmFsb3Igc3VlbHRvKS4KLSBVbmEgcmVsYWNpw7NuIHF1ZSBhcHVudGEgYSB1biBub2RvIGluZXhpc3RlbnRlIGdlbmVyYSB1biAqKmVycm9yKiogeSBibG9xdWVhIGVsIHJlbmRlcml6YWRvIChwYW5lbCAiRVJST1JFUyIpLgotIFVuIG5vZG8gc2luIGAidHlwZSJgIChlbiBtb2RvIGZsdWpvL1VNTCkgbyB1biBgInR5cGUiYCBubyByZWNvbm9jaWRvIGdlbmVyYSB1biAqKmF2aXNvKiosIHBlcm8gZWwgZGlhZ3JhbWEgaWd1YWwgc2UgZGlidWphIGNvbW8gbm9kbyBnZW7DqXJpY28gKHBhbmVsICJBVklTT1MiKS4KLSBMb3Mgbm9tYnJlcyBkZSBub2RvIHNvbiBsYXMgY2xhdmVzIGRlbCBKU09OIHRhbCBjdWFsIChzb3BvcnRhbiBhY2VudG9zIHkgZXNwYWNpb3MpOyBubyBoYWNlIGZhbHRhIHVuIGBpZGAgc2VwYXJhZG8uCgojIyBTYWxpZGEgZXNwZXJhZGEgYWwgdXNhciBlc3RhIHNraWxsCgpDdWFuZG8gc2UgcGlkYSB1biBkaWFncmFtYSwgZ2VuZXJhciBzb2xvIGVsIEpTT04gKG5vIEhUTUwgbmkgZXhwbGljYWNpw7NuIGVtYmViaWRhKSwgbGlzdG8gcGFyYSBwZWdhciBlbiBlbCB0ZXh0YXJlYSAiRU5UUkFEQSAoSlNPTiBrZXktdmFsdWUpIiBkZWwgQXV0b21hdGl6YWRvciBvIHBhcmEgY2FyZ2FyIGNvbW8gYXJjaGl2byBgLmpzb25gIGNvbiBlbCBib3TDs24gIkNhcmdhciBhcmNoaXZvIi4K";
+
+  function b64ToUtf8(b64) {
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  const SKILL_MD_CONTENT = b64ToUtf8(SKILL_MD_B64);
+
+  /* ============================================================================
+     ARQUITECTURA
+     ENTRADA (texto/archivo) -> PARSER (JSON.parse) -> VALIDACIÓN ->
+     MODELO INTERNO (nodos + relaciones) -> MOTOR DE REPRESENTACIÓN
+     (árbol | flujo | uml). Cada capa es independiente y genérica.
+     ============================================================================ */
+
+  const KNOWN_FLOW_TYPES = ["start", "end", "process", "decision"];
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  /* ---------------------------------------------------------------------------
+     2/3. INTERPRETACIÓN + MODELO INTERNO
+  --------------------------------------------------------------------------- */
+
+  function detectMode(data) {
+    const values = Object.values(data);
+    const hasTypedEntry = values.some(
+      (v) => v && typeof v === "object" && !Array.isArray(v) && "type" in v
+    );
+    if (!hasTypedEntry) return "tree";
+    const hasClass = values.some(
+      (v) => v && typeof v === "object" && v.type === "class"
+    );
+    return hasClass ? "uml" : "flow";
+  }
+
+  function buildTreeModel(data) {
+    const nodes = new Map();
+    const relations = [];
+    const errors = [];
+
+    const getNode = (name) => {
+      if (!nodes.has(name)) {
+        nodes.set(name, { id: name, name, type: "tree", attributes: [], methods: [] });
+      }
+      return nodes.get(name);
+    };
+
+    function walk(key, value) {
+      getNode(key);
+      if (Array.isArray(value)) {
+        value.forEach((item, idx) => {
+          if (item && typeof item === "object") {
+            const leafName = `${key} #${idx + 1}`;
+            getNode(leafName);
+            relations.push({ from: key, to: leafName, type: "hierarchy" });
+            walk(leafName, item);
+          } else {
+            const leafName = String(item);
+            getNode(leafName);
+            relations.push({ from: key, to: leafName, type: "hierarchy" });
+          }
+        });
+      } else if (value && typeof value === "object") {
+        Object.entries(value).forEach(([childKey, childValue]) => {
+          getNode(childKey);
+          relations.push({ from: key, to: childKey, type: "hierarchy" });
+          walk(childKey, childValue);
+        });
+      } else if (value !== null && value !== undefined) {
+        const leafName = String(value);
+        getNode(leafName);
+        relations.push({ from: key, to: leafName, type: "hierarchy" });
+      }
+    }
+
+    try {
+      Object.entries(data).forEach(([key, value]) => walk(key, value));
+    } catch (e) {
+      errors.push("Error al recorrer la estructura: " + e.message);
+    }
+
+    return { nodes: [...nodes.values()], relations, errors, warnings: [] };
+  }
+
+  function buildTypedModel(data) {
+    const nodes = new Map();
+    const relations = [];
+    const errors = [];
+    const warnings = [];
+
+    const getNode = (name) => {
+      if (!nodes.has(name)) {
+        nodes.set(name, { id: name, name, type: null, attributes: [], methods: [] });
+      }
+      return nodes.get(name);
+    };
+
+    Object.entries(data).forEach(([key, value]) => {
+      const node = getNode(key);
+      if (!value || typeof value !== "object" || Array.isArray(value)) {
+        warnings.push(`"${key}" no tiene una definición de objeto válida; se generará como nodo genérico.`);
+        return;
+      }
+      const t = value.type;
+      node.type = t || null;
+      if (!t) {
+        warnings.push(`El nodo "${key}" no declara "type"; se representará como nodo genérico.`);
+      }
+
+      if (t === "class") {
+        node.attributes = Array.isArray(value.attributes) ? value.attributes.map(String) : [];
+        node.methods = Array.isArray(value.methods) ? value.methods.map(String) : [];
+        Object.entries(value).forEach(([propKey, propVal]) => {
+          if (["type", "attributes", "methods"].includes(propKey)) return;
+          if (typeof propVal === "string") {
+            relations.push({ from: key, to: propVal, type: propKey });
+          }
+        });
+      } else {
+        if (t && !KNOWN_FLOW_TYPES.includes(t)) {
+          warnings.push(`El tipo "${t}" del nodo "${key}" no es un tipo reconocido; se dibujará como nodo genérico.`);
+        }
+        Object.entries(value).forEach(([propKey, propVal]) => {
+          if (propKey === "type") return;
+          if (typeof propVal === "string") {
+            relations.push({ from: key, to: propVal, type: propKey });
+          } else if (Array.isArray(propVal)) {
+            propVal.forEach((v) => {
+              if (typeof v === "string") relations.push({ from: key, to: v, type: propKey });
+            });
+          }
+        });
+      }
+    });
+
+    const validRelations = [];
+    relations.forEach((r) => {
+      if (!nodes.has(r.to)) {
+        errors.push(`La relación "${r.from}" → "${r.to}" (${r.type}) referencia un nodo inexistente.`);
+      } else if (!nodes.has(r.from)) {
+        errors.push(`La relación desde "${r.from}" referencia un nodo de origen inexistente.`);
+      } else {
+        validRelations.push(r);
+      }
+    });
+
+    return { nodes: [...nodes.values()], relations: validRelations, errors, warnings };
+  }
+
+  function processInput(jsonText, modeOverride) {
+    if (!jsonText || !jsonText.trim()) {
+      return { stage: "entrada", errors: [], warnings: [], nodes: [], relations: [], mode: null };
+    }
+
+    let data;
+    try {
+      data = JSON.parse(jsonText);
+    } catch (e) {
+      return {
+        stage: "parser",
+        errors: [`JSON inválido: ${e.message}`],
+        warnings: [],
+        nodes: [],
+        relations: [],
+        mode: null,
+      };
+    }
+
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+      return {
+        stage: "validacion",
+        errors: ["La raíz del JSON debe ser un objeto clave-valor, no un arreglo ni un valor simple."],
+        warnings: [],
+        nodes: [],
+        relations: [],
+        mode: null,
+      };
+    }
+
+    const detected = detectMode(data);
+    const mode = modeOverride === "auto" ? detected : modeOverride;
+
+    try {
+      const model = mode === "tree" ? buildTreeModel(data) : buildTypedModel(data);
+      return {
+        stage: model.errors.length ? "validacion" : "motor",
+        mode,
+        detected,
+        nodes: model.nodes,
+        relations: model.relations,
+        errors: model.errors,
+        warnings: model.warnings,
+      };
+    } catch (e) {
+      return {
+        stage: "modelo",
+        errors: [`Error interno al construir el modelo: ${e.message}`],
+        warnings: [],
+        nodes: [],
+        relations: [],
+        mode,
+      };
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+     MOTOR DE REPRESENTACIÓN — LAYOUTS
+  --------------------------------------------------------------------------- */
+
+  function layoutTree(nodes, relations) {
+    const NODE_W = 150, NODE_H = 46, H_GAP = 26, V_GAP = 84;
+    const childrenMap = {};
+    const hasParent = new Set();
+    relations.forEach((r) => {
+      (childrenMap[r.from] = childrenMap[r.from] || []).push(r.to);
+      hasParent.add(r.to);
+    });
+    const roots = nodes.filter((n) => !hasParent.has(n.id)).map((n) => n.id);
+    const positions = {};
+    let cursorX = 0;
+    const visiting = new Set();
+
+    function layoutNode(id, depth) {
+      if (visiting.has(id)) {
+        positions[id] = { x: cursorX, y: depth * V_GAP };
+        cursorX += NODE_W + H_GAP;
+        return positions[id].x;
+      }
+      visiting.add(id);
+      const children = (childrenMap[id] || []).filter((c) => !positions[c]);
+      if (children.length === 0) {
+        positions[id] = { x: cursorX, y: depth * V_GAP };
+        cursorX += NODE_W + H_GAP;
+      } else {
+        const childXs = children.map((c) => layoutNode(c, depth + 1));
+        const minX = Math.min(...childXs), maxX = Math.max(...childXs);
+        positions[id] = { x: (minX + maxX) / 2, y: depth * V_GAP };
+      }
+      visiting.delete(id);
+      return positions[id].x;
+    }
+
+    const effectiveRoots = roots.length ? roots : nodes.map((n) => n.id);
+    effectiveRoots.forEach((r) => {
+      if (!positions[r]) layoutNode(r, 0);
+    });
+    nodes.forEach((n) => {
+      if (!positions[n.id]) {
+        positions[n.id] = { x: cursorX, y: 0 };
+        cursorX += NODE_W + H_GAP;
+      }
+    });
+
+    const xs = Object.values(positions).map((p) => p.x);
+    const ys = Object.values(positions).map((p) => p.y);
+    const minX = Math.min(...xs, 0);
+    Object.values(positions).forEach((p) => {
+      p.x += -minX + 20;
+      p.y += 20;
+    });
+    const width = Math.max(...xs, 0) - minX + NODE_W + 40;
+    const height = Math.max(...ys, 0) + NODE_H + 40;
+
+    return { positions, width, height, nodeW: NODE_W, nodeH: NODE_H };
+  }
+
+  function layoutFlow(nodes, relations) {
+    const NODE_W = 160, NODE_H = 58, H_GAP = 70, V_GAP = 90;
+    const incoming = {};
+    nodes.forEach((n) => (incoming[n.id] = 0));
+    relations.forEach((r) => (incoming[r.to] = (incoming[r.to] || 0) + 1));
+
+    let starts = nodes.filter((n) => n.type === "start").map((n) => n.id);
+    if (starts.length === 0) starts = nodes.filter((n) => incoming[n.id] === 0).map((n) => n.id);
+    if (starts.length === 0 && nodes.length) starts = [nodes[0].id];
+
+    const childrenMap = {};
+    relations.forEach((r) => (childrenMap[r.from] = childrenMap[r.from] || []).push(r));
+    relations.forEach((r) => {
+      childrenMap[r.from] = childrenMap[r.from] || [];
+    });
+
+    const level = {};
+    const queue = starts.map((s) => ({ id: s, lvl: 0 }));
+    let guard = 0;
+    while (queue.length && guard < 5000) {
+      guard++;
+      const { id, lvl } = queue.shift();
+      if (level[id] !== undefined && level[id] <= lvl) continue;
+      level[id] = lvl;
+      (childrenMap[id] || []).forEach((r) => queue.push({ id: r.to, lvl: lvl + 1 }));
+    }
+    nodes.forEach((n) => {
+      if (level[n.id] === undefined) level[n.id] = 0;
+    });
+
+    const levels = {};
+    nodes.forEach((n) => (levels[level[n.id]] = levels[level[n.id]] || []).push(n.id));
+
+    const positions = {};
+    Object.keys(levels)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .forEach((lvl, li) => {
+        levels[lvl].forEach((id, i) => {
+          positions[id] = { x: i * (NODE_W + H_GAP), y: li * (NODE_H + V_GAP) };
+        });
+      });
+
+    const xs = Object.values(positions).map((p) => p.x);
+    const ys = Object.values(positions).map((p) => p.y);
+    Object.values(positions).forEach((p) => {
+      p.x += 20;
+      p.y += 20;
+    });
+    const width = Math.max(...xs, 0) + NODE_W + 40;
+    const height = Math.max(...ys, 0) + NODE_H + 40;
+
+    return { positions, width, height, nodeW: NODE_W, nodeH: NODE_H };
+  }
+
+  function layoutUML(nodes) {
+    const NODE_W = 230, GAP_X = 70, GAP_Y = 60;
+    const cols = Math.max(1, Math.ceil(Math.sqrt(nodes.length || 1)));
+    const rows = Math.ceil(nodes.length / cols) || 1;
+    const heightOf = (n) => 40 + Math.max(n.attributes.length, 1) * 20 + Math.max(n.methods.length, 1) * 20 + 26;
+
+    const rowHeights = new Array(rows).fill(0);
+    nodes.forEach((n, i) => {
+      const row = Math.floor(i / cols);
+      rowHeights[row] = Math.max(rowHeights[row], heightOf(n));
+    });
+    const rowY = [0];
+    for (let i = 1; i < rows; i++) rowY[i] = rowY[i - 1] + rowHeights[i - 1] + GAP_Y;
+
+    const positions = {};
+    nodes.forEach((n, i) => {
+      const row = Math.floor(i / cols), col = i % cols;
+      positions[n.id] = { x: col * (NODE_W + GAP_X) + 20, y: rowY[row] + 20, h: heightOf(n) };
+    });
+
+    const width = cols * (NODE_W + GAP_X) + 40;
+    const height = (rowY[rows - 1] || 0) + rowHeights[rows - 1] + 60;
+    return { positions, width, height, nodeW: NODE_W };
+  }
+
+  /* ---------------------------------------------------------------------------
+     COMPONENTES DE DIBUJO (SVG) — construidos con el DOM directamente
+  --------------------------------------------------------------------------- */
+
+  const MODE_COLOR = { tree: "#6fcf97", flow: "#7aa7ff", uml: "#e3a45f" };
+
+  function truncate(str, n) {
+    return str.length > n ? str.slice(0, n - 1) + "…" : str;
+  }
+
+  function svgEl(tag, attrs) {
+    const el = document.createElementNS(SVG_NS, tag);
+    if (attrs) {
+      Object.entries(attrs).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) el.setAttribute(k, v);
+      });
+    }
+    return el;
+  }
+
+  function svgText(x, y, content, attrs) {
+    const t = svgEl("text", Object.assign({ x, y }, attrs));
+    t.textContent = content;
+    return t;
+  }
+
+  function addArrowDefs(svg, color, id) {
+    const defs = svgEl("defs");
+    const marker = svgEl("marker", {
+      id, viewBox: "0 0 10 10", refX: "9", refY: "5",
+      markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse",
+    });
+    const path = svgEl("path", { d: "M0,0 L10,5 L0,10 z", fill: color });
+    marker.appendChild(path);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+  }
+
+  function renderTreeCanvas(container, nodes, relations) {
+    const layout = layoutTree(nodes, relations);
+    const { positions, width, height, nodeW, nodeH } = layout;
+    const color = MODE_COLOR.tree;
+
+    const svg = svgEl("svg", {
+      width: Math.max(width, 300), height: Math.max(height, 200),
+      style: "display:block",
+    });
+    addArrowDefs(svg, "#4a5568", "arrow-tree");
+
+    relations.forEach((r) => {
+      const p = positions[r.from], c = positions[r.to];
+      if (!p || !c) return;
+      const x1 = p.x + nodeW / 2, y1 = p.y + nodeH;
+      const x2 = c.x + nodeW / 2, y2 = c.y;
+      const midY = (y1 + y2) / 2;
+      svg.appendChild(svgEl("path", {
+        d: `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`,
+        fill: "none", stroke: "#3d4454", "stroke-width": "1.6",
+      }));
+    });
+
+    nodes.forEach((n) => {
+      const p = positions[n.id];
+      if (!p) return;
+      const g = svgEl("g", { transform: `translate(${p.x},${p.y})` });
+      g.appendChild(svgEl("rect", { width: nodeW, height: nodeH, rx: "8", fill: "#1b2029", stroke: color, "stroke-width": "1.4" }));
+      g.appendChild(svgText(nodeW / 2, nodeH / 2, truncate(n.name, 18), {
+        "text-anchor": "middle", "dominant-baseline": "central",
+        "font-family": "'IBM Plex Sans', sans-serif", "font-size": "13", fill: "#e7eaf1",
+      }));
+      svg.appendChild(g);
+    });
+
+    container.appendChild(svg);
+  }
+
+  function flowShape(node, w, h, color) {
+    const g = svgEl("g");
+    const label = truncate(node.name, 16);
+    const textEl = () => svgText(w / 2, h / 2, label, {
+      "text-anchor": "middle", "dominant-baseline": "central",
+      "font-family": "'IBM Plex Sans', sans-serif", "font-size": "12.5", fill: "#e7eaf1",
+    });
+
+    if (node.type === "start" || node.type === "end") {
+      g.appendChild(svgEl("rect", { width: w, height: h, rx: h / 2, fill: "#1b2029", stroke: color, "stroke-width": "1.6" }));
+      g.appendChild(textEl());
+      return g;
+    }
+    if (node.type === "decision") {
+      const cx = w / 2, cy = h / 2;
+      const points = `${cx},0 ${w},${cy} ${cx},${h} 0,${cy}`;
+      g.appendChild(svgEl("polygon", { points, fill: "#1b2029", stroke: color, "stroke-width": "1.6" }));
+      g.appendChild(textEl());
+      return g;
+    }
+    if (node.type === "process") {
+      g.appendChild(svgEl("rect", { width: w, height: h, rx: "4", fill: "#1b2029", stroke: color, "stroke-width": "1.6" }));
+      g.appendChild(textEl());
+      return g;
+    }
+    // tipo desconocido / genérico
+    g.appendChild(svgEl("rect", { width: w, height: h, rx: "4", fill: "#1b2029", stroke: "#5a6272", "stroke-dasharray": "5,4", "stroke-width": "1.4" }));
+    g.appendChild(textEl());
+    if (node.type) {
+      g.appendChild(svgText(w / 2, h - 8, `type: ${node.type}`, {
+        "text-anchor": "middle", "font-family": "'JetBrains Mono', monospace", "font-size": "9", fill: "#6b7382",
+      }));
+    }
+    return g;
+  }
+
+  function renderFlowCanvas(container, nodes, relations) {
+    const layout = layoutFlow(nodes, relations);
+    const { positions, width, height, nodeW, nodeH } = layout;
+    const color = MODE_COLOR.flow;
+
+    const svg = svgEl("svg", {
+      width: Math.max(width, 300), height: Math.max(height, 200),
+      style: "display:block",
+    });
+    addArrowDefs(svg, color, "arrow-flow");
+
+    relations.forEach((r) => {
+      const p = positions[r.from], c = positions[r.to];
+      if (!p || !c) return;
+      const x1 = p.x + nodeW / 2, y1 = p.y + nodeH;
+      const x2 = c.x + nodeW / 2, y2 = c.y;
+      const midY = (y1 + y2) / 2;
+      const isBranch = r.type === "false";
+      const g = svgEl("g");
+      g.appendChild(svgEl("path", {
+        d: `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`,
+        fill: "none", stroke: isBranch ? "#e3826f" : color, "stroke-width": "1.6",
+        "marker-end": "url(#arrow-flow)",
+      }));
+      if (r.type !== "hierarchy") {
+        g.appendChild(svgText((x1 + x2) / 2, midY - 4, r.type, {
+          "text-anchor": "middle", "font-family": "'JetBrains Mono', monospace", "font-size": "10.5", fill: "#9aa5b8",
+        }));
+      }
+      svg.appendChild(g);
+    });
+
+    nodes.forEach((n) => {
+      const p = positions[n.id];
+      if (!p) return;
+      const g = svgEl("g", { transform: `translate(${p.x},${p.y})` });
+      g.appendChild(flowShape(n, nodeW, nodeH, color));
+      svg.appendChild(g);
+    });
+
+    container.appendChild(svg);
+  }
+
+  function renderUMLCanvas(container, nodes, relations) {
+    const layout = layoutUML(nodes);
+    const { positions, width, height, nodeW } = layout;
+    const color = MODE_COLOR.uml;
+
+    const centerOf = (id) => {
+      const p = positions[id];
+      if (!p) return null;
+      return { x: p.x + nodeW / 2, y: p.y + p.h / 2 };
+    };
+
+    const svg = svgEl("svg", {
+      width: Math.max(width, 300), height: Math.max(height, 200),
+      style: "display:block",
+    });
+    addArrowDefs(svg, color, "arrow-uml");
+
+    relations.forEach((r) => {
+      const a = centerOf(r.from), b = centerOf(r.to);
+      if (!a || !b) return;
+      const g = svgEl("g");
+      g.appendChild(svgEl("line", {
+        x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: color, "stroke-width": "1.4",
+        "stroke-dasharray": (r.type === "extends" || r.type === "implements") ? "6,4" : undefined,
+        "marker-end": "url(#arrow-uml)",
+      }));
+      g.appendChild(svgText((a.x + b.x) / 2, (a.y + b.y) / 2 - 4, r.type, {
+        "text-anchor": "middle", "font-family": "'JetBrains Mono', monospace", "font-size": "10", fill: "#9aa5b8",
+      }));
+      svg.appendChild(g);
+    });
+
+    nodes.forEach((n) => {
+      const p = positions[n.id];
+      if (!p) return;
+      const attrs = n.attributes.length ? n.attributes : ["—"];
+      const methods = n.methods.length ? n.methods : ["—"];
+      const headerH = 32;
+      const attrH = attrs.length * 20 + 10;
+
+      const g = svgEl("g", { transform: `translate(${p.x},${p.y})` });
+      g.appendChild(svgEl("rect", { width: nodeW, height: p.h, fill: "#1b2029", stroke: color, "stroke-width": "1.4" }));
+      g.appendChild(svgText(nodeW / 2, headerH / 2, truncate(n.name, 20), {
+        "text-anchor": "middle", "dominant-baseline": "central",
+        "font-family": "'JetBrains Mono', monospace", "font-weight": "600", "font-size": "13", fill: "#e7eaf1",
+      }));
+      g.appendChild(svgEl("line", { x1: "0", y1: headerH, x2: nodeW, y2: headerH, stroke: color, "stroke-width": "1" }));
+      attrs.forEach((a, i) => {
+        g.appendChild(svgText(12, headerH + 18 + i * 20, truncate(a, 26), {
+          "font-family": "'JetBrains Mono', monospace", "font-size": "11.5", fill: "#c3c9d6",
+        }));
+      });
+      g.appendChild(svgEl("line", { x1: "0", y1: headerH + attrH, x2: nodeW, y2: headerH + attrH, stroke: color, "stroke-width": "1" }));
+      methods.forEach((m, i) => {
+        g.appendChild(svgText(12, headerH + attrH + 18 + i * 20, truncate(m, 26), {
+          "font-family": "'JetBrains Mono', monospace", "font-size": "11.5", fill: "#c3c9d6",
+        }));
+      });
+      svg.appendChild(g);
+    });
+
+    container.appendChild(svg);
+  }
+
+  /* ---------------------------------------------------------------------------
+     EJEMPLOS
+  --------------------------------------------------------------------------- */
+
+  const EXAMPLES = {
+    arbol: {
+      label: "Árbol · Programación",
+      json: { Programación: { Frontend: "HTML", Backend: "Python" } },
+    },
+    arbol2: {
+      label: "Árbol · otro dominio",
+      json: {
+        Cocina: {
+          Entradas: ["Ensalada", "Sopa"],
+          Postres: { Frío: "Helado", Caliente: "Tarta tibia" },
+        },
+      },
+    },
+    flujo: {
+      label: "Flujo · Validación",
+      json: {
+        Inicio: { type: "start", next: "Validar" },
+        Validar: { type: "decision", true: "Guardar", false: "Error" },
+        Guardar: { type: "process", next: "Fin" },
+        Error: { type: "process", next: "Fin" },
+        Fin: { type: "end" },
+      },
+    },
+    uml: {
+      label: "UML · Usuario",
+      json: {
+        Usuario: { type: "class", attributes: ["nombre", "email"], methods: ["iniciarSesion()"] },
+        Administrador: {
+          type: "class", attributes: ["nivelAcceso"], methods: ["gestionarUsuarios()"], extends: "Usuario",
+        },
+      },
+    },
+  };
+
+  /* ---------------------------------------------------------------------------
+     BARRA DE PIPELINE
+  --------------------------------------------------------------------------- */
+
+  const STAGES = [
+    { key: "entrada", label: "ENTRADA" },
+    { key: "parser", label: "PARSER" },
+    { key: "validacion", label: "VALIDACIÓN" },
+    { key: "modelo", label: "MODELO" },
+    { key: "motor", label: "MOTOR" },
+  ];
+
+  function stageIndex(result) {
+    if (!result.mode && result.stage === "entrada") return -1;
+    if (result.stage === "parser") return 0;
+    if (result.stage === "validacion") return result.errors.length ? 1 : 2;
+    if (result.stage === "modelo") return 2;
+    if (result.stage === "motor") return 4;
+    return -1;
+  }
+
+  function renderPipelineBar(container, result) {
+    container.innerHTML = "";
+    const active = stageIndex(result);
+    const color = result.mode ? MODE_COLOR[result.mode] : "#5a6272";
+
+    STAGES.forEach((s, i) => {
+      const stageDiv = document.createElement("div");
+      stageDiv.className = "pipeline-stage";
+      stageDiv.textContent = s.label;
+      const on = i <= active;
+      stageDiv.style.border = `1px solid ${on ? color : "#2a2f3a"}`;
+      stageDiv.style.color = on ? color : "#5a6272";
+      stageDiv.style.background = on ? color + "14" : "transparent";
+      container.appendChild(stageDiv);
+
+      if (i < STAGES.length - 1) {
+        const arrow = document.createElement("div");
+        arrow.className = "pipeline-arrow";
+        arrow.textContent = "→";
+        arrow.style.color = i < active ? color : "#2a2f3a";
+        container.appendChild(arrow);
+      }
+    });
+
+    if (result.mode) {
+      const arrow = document.createElement("div");
+      arrow.className = "pipeline-arrow";
+      arrow.textContent = "→";
+      arrow.style.color = active >= 4 ? color : "#2a2f3a";
+      container.appendChild(arrow);
+
+      const modeDiv = document.createElement("div");
+      modeDiv.className = "pipeline-mode";
+      modeDiv.textContent = result.mode.toUpperCase();
+      modeDiv.style.border = `1px solid ${color}`;
+      modeDiv.style.color = "#10131a";
+      modeDiv.style.background = color;
+      container.appendChild(modeDiv);
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+     APP PRINCIPAL (estado + orquestación de render, sin React)
+  --------------------------------------------------------------------------- */
+
+  const state = {
+    jsonText: JSON.stringify(EXAMPLES.arbol.json, null, 2),
+    modeOverride: "auto",
+  };
+
+  const els = {
+    pipelineBar: document.getElementById("pipelineBar"),
+    examplesRow: document.getElementById("examplesRow"),
+    modeRow: document.getElementById("modeRow"),
+    jsonInput: document.getElementById("jsonInput"),
+    messagesPanel: document.getElementById("messagesPanel"),
+    rightPanel: document.getElementById("rightPanel"),
+    fileInput: document.getElementById("fileInput"),
+    loadFileBtn: document.getElementById("loadFileBtn"),
+    clearBtn: document.getElementById("clearBtn"),
+    downloadActions: document.getElementById("downloadActions"),
+    downloadSvgBtn: document.getElementById("downloadSvgBtn"),
+    downloadPngBtn: document.getElementById("downloadPngBtn"),
+  };
+
+  /* ---------------------------------------------------------------------------
+     DESCARGA DEL DIAGRAMA (SVG / PNG)
+  --------------------------------------------------------------------------- */
+
+  let currentSvg = null; // referencia al <svg> actualmente renderizado
+
+  function triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadSvg() {
+    if (!currentSvg) return;
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(currentSvg);
+    if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
+      source = source.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+    triggerDownload(blob, "diagrama.svg");
+  }
+
+  function downloadPng() {
+    if (!currentSvg) return;
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(currentSvg);
+    if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
+      source = source.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    const width = Number(currentSvg.getAttribute("width")) || currentSvg.clientWidth;
+    const height = Number(currentSvg.getAttribute("height")) || currentSvg.clientHeight;
+    const scale = 2; // exporta a 2x para mejor nitidez
+
+    const svgBlob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#12151c"; // mismo fondo del canvas-frame
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((blob) => {
+        if (blob) triggerDownload(blob, "diagrama.png");
+      }, "image/png");
+    };
+    img.onerror = () => URL.revokeObjectURL(url);
+    img.src = url;
+  }
+
+  function buildExamplesRow() {
+    els.examplesRow.innerHTML = "";
+    Object.entries(EXAMPLES).forEach(([key, ex]) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "chip";
+      btn.textContent = ex.label;
+      btn.addEventListener("click", () => {
+        state.jsonText = JSON.stringify(ex.json, null, 2);
+        state.modeOverride = "auto";
+        els.jsonInput.value = state.jsonText;
+        render();
+      });
+      els.examplesRow.appendChild(btn);
+    });
+  }
+
+  const MODE_LABELS = { auto: "Auto", tree: "Árbol", flow: "Flujo", uml: "UML" };
+
+  function buildModeRow() {
+    els.modeRow.innerHTML = "";
+    ["auto", "tree", "flow", "uml"].forEach((m) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "mode-btn" + (state.modeOverride === m ? " active" : "");
+      btn.textContent = MODE_LABELS[m];
+      btn.addEventListener("click", () => {
+        state.modeOverride = m;
+        render();
+      });
+      els.modeRow.appendChild(btn);
+    });
+  }
+
+  function renderMessages(result) {
+    els.messagesPanel.innerHTML = "";
+    if (result.errors.length === 0 && result.warnings.length === 0) return;
+
+    const wrap = document.createElement("div");
+    wrap.style.display = "flex";
+    wrap.style.flexDirection = "column";
+    wrap.style.gap = "8px";
+
+    if (result.errors.length > 0) {
+      const box = document.createElement("div");
+      box.className = "panel-box panel-errors";
+      const title = document.createElement("div");
+      title.className = "panel-title-err";
+      title.textContent = "ERRORES";
+      box.appendChild(title);
+      result.errors.forEach((e) => {
+        const line = document.createElement("div");
+        line.className = "panel-line-err";
+        line.textContent = "• " + e;
+        box.appendChild(line);
+      });
+      wrap.appendChild(box);
+    }
+
+    if (result.warnings.length > 0) {
+      const box = document.createElement("div");
+      box.className = "panel-box panel-warnings";
+      const title = document.createElement("div");
+      title.className = "panel-title-warn";
+      title.textContent = "AVISOS";
+      box.appendChild(title);
+      result.warnings.forEach((w) => {
+        const line = document.createElement("div");
+        line.className = "panel-line-warn";
+        line.textContent = "• " + w;
+        box.appendChild(line);
+      });
+      wrap.appendChild(box);
+    }
+
+    els.messagesPanel.appendChild(wrap);
+  }
+
+  function renderCanvas(result) {
+    els.rightPanel.innerHTML = "";
+    const canRender = result.mode && result.nodes.length > 0 && result.errors.length === 0;
+
+    if (canRender) {
+      const frame = document.createElement("div");
+      frame.className = "canvas-frame";
+      if (result.mode === "tree") renderTreeCanvas(frame, result.nodes, result.relations);
+      if (result.mode === "flow") renderFlowCanvas(frame, result.nodes, result.relations);
+      if (result.mode === "uml") renderUMLCanvas(frame, result.nodes, result.relations);
+      els.rightPanel.appendChild(frame);
+      currentSvg = frame.querySelector("svg");
+      els.downloadActions.style.display = "flex";
+    } else {
+      currentSvg = null;
+      els.downloadActions.style.display = "none";
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      const text = document.createElement("div");
+      text.className = "empty-state-text";
+      text.textContent = state.jsonText.trim() === ""
+        ? "Esperando entrada…"
+        : result.errors.length
+          ? "Corregí los errores para generar el diagrama."
+          : "Sin nodos que representar.";
+      empty.appendChild(text);
+      els.rightPanel.appendChild(empty);
+    }
+  }
+
+  function render() {
+    const result = processInput(state.jsonText, state.modeOverride);
+    renderPipelineBar(els.pipelineBar, result);
+    buildModeRow();
+    renderMessages(result);
+    renderCanvas(result);
+  }
+
+  // Eventos
+  els.jsonInput.addEventListener("input", (e) => {
+    state.jsonText = e.target.value;
+    render();
+  });
+
+  els.clearBtn.addEventListener("click", () => {
+    state.jsonText = "";
+    els.jsonInput.value = "";
+    render();
+  });
+
+  els.loadFileBtn.addEventListener("click", () => {
+    els.fileInput.click();
+  });
+
+  els.downloadSvgBtn.addEventListener("click", downloadSvg);
+  els.downloadPngBtn.addEventListener("click", downloadPng);
+
+  els.fileInput.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      state.jsonText = String(ev.target.result);
+      els.jsonInput.value = state.jsonText;
+      render();
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  // Pantalla previa: descargar SKILL.md y pasar al Automatizador
+  document.getElementById("downloadSkillBtn").addEventListener("click", () => {
+    const blob = new Blob([SKILL_MD_CONTENT], { type: "text/markdown;charset=utf-8" });
+    triggerDownload(blob, "SKILL.md");
+  });
+
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    document.getElementById("landingScreen").style.display = "none";
+    document.getElementById("app").style.display = "flex";
+  });
+
+  // Inicialización
+  els.jsonInput.value = state.jsonText;
+  buildExamplesRow();
+  render();
+})();
+</script>
+</body>
+</html>
