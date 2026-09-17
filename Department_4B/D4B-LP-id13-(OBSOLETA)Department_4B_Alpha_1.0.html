@@ -1,0 +1,2095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Department 4.B</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; background:#0a0b0a; overflow:hidden; font-family:'Courier New', monospace; }
+  #wrap { width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+  #stage { position:relative; width:min(96vw, 960px); aspect-ratio: 320 / 180; background:#000; }
+  canvas { width:100%; height:100%; image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+  #hud { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+  #objective {
+    position:absolute; top:2.5%; left:2.5%; color:#cdd0c4; background:rgba(10,11,10,0.55);
+    padding:0.6em 0.9em; font-size:clamp(9px,1.5vw,14px); letter-spacing:0.5px; border-left:2px solid #6b6a58;
+  }
+  #objective .label { color:#83816f; font-size:0.85em; display:block; margin-bottom:2px; }
+  #controls { position:absolute; bottom:2%; right:2.5%; color:#6b6a58; font-size:clamp(7px,1.1vw,11px); opacity:0.75; text-align:right; }
+  #promptIcon {
+    position:absolute; color:#e8e4d2; font-size:clamp(9px,1.4vw,13px); background:rgba(10,11,10,0.6);
+    padding:1px 5px; border:1px solid #4a4838; transform:translate(-50%,-140%); display:none; white-space:nowrap;
+  }
+  #dialogue {
+    position:absolute; bottom:8%; left:50%; transform:translateX(-50%); width:min(80%, 520px);
+    background:rgba(8,9,8,0.85); border:2px solid #3a382c; color:#e2ddc9; padding:0.8em 1em;
+    font-size:clamp(10px,1.6vw,15px); letter-spacing:0.3px; line-height:1.5;
+    opacity:0; transition:opacity 0.35s ease; pointer-events:none; min-height:1.4em;
+  }
+  #dialogue.show { opacity:1; }
+  #vignette {
+    position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 38%, rgba(0,0,0,0.62) 100%);
+    mix-blend-mode:multiply;
+  }
+  #fade { position:absolute; top:0; left:0; width:100%; height:100%; background:#000; opacity:0; pointer-events:none; transition:opacity 1s ease; z-index:20; }
+  /* Day-title card shown over the black fade between days (e.g. "Day 2") */
+  #dayTitle {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    color:#cdd0c4; font-size:clamp(16px,3.2vw,28px); letter-spacing:6px;
+    opacity:0; transition:opacity 1.2s ease; pointer-events:none; z-index:25; text-align:center;
+  }
+  /* Small location card, upper-right — orientation only, same fade
+     rhythm as #dayTitle but smaller and shorter-lived. */
+  #locationCard {
+    position:absolute; top:6%; right:3%; color:#cdd0c4; background:rgba(10,11,10,0.55);
+    padding:0.35em 0.7em; font-size:clamp(8px,1.25vw,12px); letter-spacing:2px;
+    border-right:2px solid #6b6a58; opacity:0; pointer-events:none; z-index:22; text-align:right;
+    transition:opacity 0.4s ease;
+  }
+  #startOverlay {
+    position:absolute; top:0; left:0; width:100%; height:100%; background:#050504; color:#83816f;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; z-index:30; text-align:center;
+  }
+  #startOverlay h1 { color:#cbc9b8; font-size:clamp(15px,2.8vw,24px); font-weight:normal; letter-spacing:3px; margin-bottom:6px; }
+  #startOverlay .sub { color:#6b6a58; font-size:clamp(8px,1.3vw,11px); letter-spacing:2px; margin-bottom:16px; }
+  #startOverlay p { font-size:clamp(9px,1.6vw,13px); opacity:0.8; letter-spacing:1px; }
+  #startOverlay .blink { margin-top:22px; animation: blink 1.6s infinite; font-size:clamp(9px,1.5vw,12px); }
+  @keyframes blink { 0%,100%{opacity:0.25;} 50%{opacity:0.9;} }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <canvas id="game" width="320" height="180"></canvas>
+    <div id="vignette"></div>
+    <div id="hud">
+      <div id="objective"><span class="label">Today's Objective</span>Try to clean the apartment.</div>
+      <div id="controls">Arrows / WASD &nbsp;move<br>Z &nbsp;inspect / use door</div>
+      <div id="promptIcon">Z</div>
+      <div id="dialogue"></div>
+      <div id="locationCard"></div>
+    </div>
+    <div id="fade"></div>
+    <div id="dayTitle"></div>
+    <div id="startOverlay">
+      <h1>DEPARTMENT 4.B</h1>
+      <div class="sub">psychological horror &middot; pixel art</div>
+      <p>no music. only the apartment.</p>
+      <p class="blink">click to begin</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const VIEW_W = 320, VIEW_H = 180;
+
+  function lines(arr){ return { lines:arr, idx:0 }; }
+  function fixedLine(str){ return { lines:[str], idx:0, fixed:true }; }
+
+  // =====================================================================
+  // SCENE DEFINITIONS
+  // Each scene is authored in its own local coordinate space and gets
+  // centered on the 320x180 viewport at render time.
+  // =====================================================================
+  const SCENES = {};
+
+  // ---------------- BEDROOM (2m x 2m) ----------------
+  (function(){
+    const w=110, h=110;
+    const solids = [];
+    const objects = [];
+    function wallS(x,y,ww,hh){ solids.push({x,y,w:ww,h:hh,isWall:true}); }
+    function solidObj(x,y,ww,hh){ solids.push({x,y,w:ww,h:hh}); }
+
+    wallS(0,0,110,7);
+    wallS(0,103,45,7);
+    wallS(65,103,45,7);
+    wallS(0,0,7,110);
+    wallS(103,0,7,110);
+
+    // door south -> hallway
+    solidObj(45,99,20,11);
+    objects.push({ id:'doorToHallway', x:45,y:99,w:20,h:11, draw:'doorTransition', kind:'transition',
+      target:{ scene:'hallway', x:20, y:112, dir:'right' } });
+
+    const bed = { id:'bed', x:10,y:10,w:42,h:30, isBed:true, sceneOnly:'bedroom' };
+    objects.push(bed);
+
+    solidObj(55,45,32,20);
+    objects.push({ id:'desk', x:55,y:45,w:32,h:20, draw:'desk',
+      dialogue: lines(['Papers I never read.', "I don't remember writing this."]) });
+    objects.push({ id:'deskChair', x:62,y:68,w:14,h:16, draw:'brokenChair',
+      dialogue: lines(['I used to sit here.', '...']) });
+    objects.push({ id:'clock', x:57,y:14,w:10,h:8, draw:'clock',
+      dialogue: lines(['Still broken.', "I never fixed it."]) });
+    objects.push({ id:'ashtray_bed', x:57,y:26,w:8,h:6, draw:'ashtray',
+      dialogue: lines(['Overflowing again.', '...']) });
+    objects.push({ id:'clothesPile', x:10,y:48,w:26,h:14, draw:'clothes',
+      dialogue: lines(["Clean or dirty. I can't tell.", "Doesn't matter."]) });
+    objects.push({ id:'bottle', x:80,y:70,w:6,h:10, draw:'bottle',
+      dialogue: lines(['Empty.', 'Been empty a while.']) });
+    objects.push({ id:'stain', x:32,y:78,w:20,h:10, draw:'stain',
+      dialogue: lines(['Dust everywhere.', 'When did I last clean this?']) });
+
+    SCENES.bedroom = { w,h, solids, objects,
+      floors:[{x:7,y:7,w:96,h:96,type:'wood'}] };
+  })();
+
+  // ---------------- HALLWAY (5m x 1m) + bathroom alcove ----------------
+  (function(){
+    const w=260, h=140;
+    const solids = [];
+    const objects = [];
+    function wallS(x,y,ww,hh,tag){ solids.push({x,y,w:ww,h:hh,isWall:true,tag}); }
+    function solidObj(x,y,ww,hh,tag){ solids.push({x,y,w:ww,h:hh,tag}); }
+
+    // corridor walls (gap x118-142 for bathroom)
+    wallS(10,83,108,7);
+    wallS(142,83,108,7);
+    wallS(10,130,240,7);
+    wallS(3,83,7,54);
+    wallS(250,83,7,54);
+
+    // bathroom walls (gap x118-142 aligned with corridor)
+    // tagged 'bathroom' so Day 3 can make the whole room vanish
+    wallS(95,10,70,7,'bathroom');
+    wallS(95,10,7,73,'bathroom');
+    wallS(158,10,7,73,'bathroom');
+    wallS(95,76,23,7,'bathroom');
+    wallS(142,76,23,7,'bathroom');
+
+    // doors -> bedroom (west) / living (east)
+    solidObj(3,95,10,20);
+    objects.push({ id:'doorToBedroom', x:3,y:95,w:10,h:20, draw:'doorTransition', kind:'transition',
+      target:{ scene:'bedroom', x:55, y:92, dir:'up' } });
+
+    solidObj(247,95,10,20);
+    objects.push({ id:'doorToLiving', x:247,y:95,w:10,h:20, draw:'doorTransition', kind:'transition',
+      target:{ scene:'living', x:20, y:65, dir:'right' } });
+
+    // bathroom fixtures — tagged so they can vanish mid-loop on Day 3
+    solidObj(105,20,18,12,'bathroom');
+    objects.push({ id:'bathSink', x:105,y:20,w:18,h:12, draw:'bathSink', tag:'bathroom',
+      dialogue: lines(['Limescale everywhere.', '...']) });
+    solidObj(105,40,14,18,'bathroom');
+    objects.push({ id:'toilet', x:105,y:40,w:14,h:18, draw:'toilet', tag:'bathroom',
+      dialogue: lines(['...', 'Later.']) });
+    solidObj(132,20,22,24,'bathroom');
+    objects.push({ id:'shower', x:132,y:20,w:22,h:24, draw:'shower', tag:'bathroom',
+      dialogue: lines(["Hasn't been used in days.", 'The mold keeps coming back.']) });
+    objects.push({ id:'mirror', x:105,y:12,w:18,h:8, draw:'mirror', tag:'bathroom',
+      dialogue: fixedLine("I don't want to look.") });
+
+    // Invisible barrier across the bathroom entrance. Inactive normally
+    // (the bathroom is reachable); once the bathroom vanishes on Day 3,
+    // this becomes solid so the gap can no longer be entered at all.
+    solidObj(112,76,34,10,'bathroomBarrier');
+
+
+    SCENES.hallway = { w,h, solids, objects,
+      floors:[
+        {x:10,y:90,w:240,h:40,type:'wood'},
+        {x:102,y:17,w:56,h:59,type:'tile',tag:'bathroom'}
+      ] };
+  })();
+
+  // ---------------- LIVING / KITCHEN / DINING (4m x 3m) ----------------
+  (function(){
+    const w=174, h=134;
+    const solids = [];
+    const objects = [];
+    function wallS(x,y,ww,hh){ solids.push({x,y,w:ww,h:hh,isWall:true}); }
+    function solidObj(x,y,ww,hh){ solids.push({x,y,w:ww,h:hh}); }
+
+    wallS(0,0,174,7);
+    wallS(0,127,174,7);
+    wallS(0,0,7,55);
+    wallS(0,79,7,55);
+    wallS(167,0,7,134);
+
+    solidObj(0,55,10,24);
+    objects.push({ id:'doorToHallway2', x:0,y:55,w:10,h:24, draw:'doorTransition', kind:'transition',
+      target:{ scene:'hallway', x:215, y:108, dir:'left', markLivingReturn:true } });
+
+    // kitchen zone
+    solidObj(12,12,20,32);
+    objects.push({ id:'fridge', x:12,y:12,w:20,h:32, draw:'fridge',
+      dialogue: lines(["Something's gone bad in there.", "I'll deal with it later."]) });
+    solidObj(12,48,36,14);
+    objects.push({ id:'kitchenSink', x:12,y:48,w:36,h:14, draw:'sink',
+      dialogue: lines(['Dishes again.', 'Not today.']) });
+    objects.push({ id:'trash', x:52,y:46,w:18,h:16, draw:'trash',
+      dialogue: lines(['Still full.', "I keep saying I'll take it out."]) });
+    objects.push({ id:'pipe', x:52,y:14,w:6,h:26, draw:'pipe',
+      dialogue: lines(['Still dripping.', '...']) });
+
+    // dining zone
+    solidObj(78,20,44,26);
+    objects.push({ id:'table', x:78,y:20,w:44,h:26, draw:'table',
+      dialogue: lines(['Cigarette burns in the wood.', 'I lost count.']) });
+    objects.push({ id:'cans', x:100,y:12,w:12,h:8, draw:'cans',
+      dialogue: lines(['More than I remember.', '...']) });
+    objects.push({ id:'brokenChair2', x:95,y:48,w:14,h:16, draw:'brokenChair',
+      dialogue: lines(['Broken a long time ago.', 'Never fixed it.']) });
+
+    // living zone — sofa and TV face each other on the same x-axis,
+    // sofa near the middle of the room, TV further down, the way an
+    // actual living room would be laid out. Tagged 'couch' on its solid
+    // so its collision can be switched off while the player is seated
+    // (see Day 5 / triggerSofaSit and tryMove).
+    solidObj(72,54,30,16,'couch');
+    objects.push({ id:'couch', x:72,y:54,w:30,h:16, draw:'couch',
+      dialogue: lines(['The springs are gone.', 'Still sit there anyway.']) });
+    solidObj(75,96,24,18);
+    objects.push({ id:'tv', x:75,y:96,w:24,h:18, draw:'tv',
+      dialogue: lines(["Hasn't worked in months.", 'I keep it anyway.']) });
+
+    objects.push({ id:'mold1', x:138,y:66,w:22,h:18, draw:'mold',
+      dialogue: lines(['It keeps spreading.', '...']) });
+    objects.push({ id:'photo', x:70,y:10,w:16,h:10, draw:'photo',
+      dialogue: lines(['...', "I don't remember."]) });
+
+    // the two doors of the living room
+    solidObj(20,118,26,9);
+    objects.push({ id:'lockedDoor', x:20,y:118,w:26,h:9, draw:'lockedDoor',
+      dialogue: { lines:['...', 'Still locked.', null, 'No.', '...', null], idx:0, loop:true } });
+
+    // moved up along the east wall, clear of the sofa/TV area below it.
+    solidObj(158,20,9,26);
+    objects.push({ id:'exitDoor', x:158,y:20,w:9,h:26, draw:'exitDoor',
+      dialogue: fixedLine("I don't want to go outside today.") });
+
+    SCENES.living = { w,h, solids, objects,
+      floors:[{x:7,y:7,w:160,h:120,type:'wood2'}] };
+  })();
+
+  // =====================================================================
+  // APARTMENT BUILDING — introduced on Day 4 (5 floors, identical layout).
+  // Built once at load time like every other scene; day-gating happens
+  // through day4State / applyDay4Changes(), not through scene rebuilding.
+  // =====================================================================
+  const FLOOR_SEQUENCE = ['lobby4','lobby3','lobby2','lobby1','lobbyG'];
+  const LOBBY_W = 200, LOBBY_H = 170;
+
+  // Fixed slots shared by every floor, so the layout genuinely reads as
+  // "the same building" — only opts.* toggles what's actually present.
+  const STAIR_X = LOBBY_W-23;      // flush against the east wall
+  const STAIR_UP_Y = 22, STAIR_DOWN_Y = 58, STAIR_W = 23, STAIR_H = 28;
+  const DOOR_UP_Y = 25, DOOR_LOW_Y = 110, DOOR_W = 16, DOOR_H = 30;
+
+  function buildLobby(key, opts){
+    opts = opts || {};
+    const w = LOBBY_W, h = LOBBY_H;
+    const solids = [];
+    const objects = [];
+    function wallS(x,y,ww,hh,tag){ solids.push({x,y,w:ww,h:hh,isWall:true,tag}); }
+    function solidObj(x,y,ww,hh,tag){ solids.push({x,y,w:ww,h:hh,tag}); }
+    function doorDialogue(){
+      return { lines:['...', 'Nobody answers.', "I shouldn't bother them."], idx:0, loop:true };
+    }
+
+    wallS(0,0,w,7); // north wall
+
+    // West wall — gapped only on the 4th floor, and only where the
+    // protagonist's own door (Apartment 4.B) sits.
+    if (opts.hasHomeDoor){
+      wallS(0,0,7,DOOR_LOW_Y);
+      wallS(0,DOOR_LOW_Y+DOOR_H,7,h-(DOOR_LOW_Y+DOOR_H));
+    } else {
+      wallS(0,0,7,h);
+    }
+
+    wallS(w-7,0,7,h); // east wall, full height every floor
+
+    if (opts.isGround){
+      // South wall replaced by the double glass entrance — a barrier
+      // sits across the gap (the doors never open), daylight visible
+      // through it, nothing else. Lit the same dim, warm way as every
+      // floor's window, for visual consistency.
+      wallS(0,h-7,50,7);
+      wallS(w-50,h-7,50,7);
+      solidObj(50,h-7,w-100,7,'glassDoor');
+      objects.push({ id:'glassDoor', x:50,y:h-16,w:w-100,h:16, draw:'glassDoor', special:'glassDoor' });
+      objects.push({ id:'entranceMat', x:w/2-9,y:h-30,w:18,h:9, draw:'mat' });
+    } else {
+      wallS(0,h-7,w,7); // south wall
+      // A window, not a door — dim, night-blue glass with a little
+      // warm light bleeding through one pane.
+      objects.push({ id:'window_'+key, x:w/2-14,y:h-16,w:28,h:16, draw:'window' });
+    }
+
+    // Apartment A (west wall, upper) — never enterable, on every floor
+    // except the Ground Floor, which has no apartment doors at all.
+    if (!opts.isGround){
+      objects.push({ id:'aptA_'+key, x:0,y:DOOR_UP_Y,w:DOOR_W,h:DOOR_H, draw:'aptDoor', dir:'west',
+        dialogue: doorDialogue() });
+    }
+
+    // Apartment B (west wall, lower). On the 4th floor this IS the
+    // protagonist's own door — 4.B — and actually works. On the Ground
+    // Floor there is no door here at all.
+    if (opts.hasHomeDoor){
+      solidObj(0,DOOR_LOW_Y,DOOR_W,DOOR_H);
+      objects.push({ id:'aptDoor4B', x:0,y:DOOR_LOW_Y,w:DOOR_W,h:DOOR_H, draw:'doorTransition', kind:'transition', dir:'west',
+        target:{ scene:'living', x:150, y:100, dir:'left' } });
+    } else if (!opts.isGround){
+      objects.push({ id:'aptB_'+key, x:0,y:DOOR_LOW_Y,w:DOOR_W,h:DOOR_H, draw:'aptDoor', dir:'west',
+        dialogue: doorDialogue() });
+    }
+
+    // Apartment C (east wall, lower, mirroring Apartment B) — never on
+    // the Ground Floor.
+    if (!opts.isGround){
+      objects.push({ id:'aptC_'+key, x:w-DOOR_W,y:DOOR_LOW_Y,w:DOOR_W,h:DOOR_H, draw:'aptDoor', dir:'east',
+        dialogue: doorDialogue() });
+    }
+
+    // Two staircases, stacked on the east wall, flush against it (the
+    // start of each staircase IS the wall — no gap). No arrows: which
+    // one is which is a matter of walking up to it. The top floor only
+    // has a way down; the Ground Floor only has a way up (no basement).
+    if (opts.hasStairUp !== false){
+      objects.push({ id:'stairUp_'+key, x:STAIR_X,y:STAIR_UP_Y,w:STAIR_W,h:STAIR_H, draw:'stairs', stairDir:'up', special:'stair' });
+    }
+    if (opts.hasStairDown !== false){
+      objects.push({ id:'stairDown_'+key, x:STAIR_X,y:STAIR_DOWN_Y,w:STAIR_W,h:STAIR_H, draw:'stairs', stairDir:'down', special:'stair' });
+    }
+
+    // The only NPC in the game, only on the 3rd floor — standing
+    // beside Apartment A.
+    if (opts.hasNPC){
+      objects.push({ id:'lobbyWoman', x:20,y:DOOR_UP_Y+4,w:10,h:16, draw:'npcWoman', special:'npc', tag:'womanNPC' });
+    }
+
+    // ---- generic corridor dressing, identical on every floor ----
+    // A wide, short runner rug (not the whole corridor length), and
+    // two plastic plants tucked into opposite corners. Same everywhere
+    // — the one thing that actually IS consistent, so the small
+    // per-floor differences elsewhere stand out.
+    objects.push({ id:'rug_'+key, x:(w-90)/2,y:35,w:90,h:95, draw:'rug',
+      dialogue: fixedLine('A wide, threadbare runner.') });
+    objects.push({ id:'plantTop_'+key, x:36,y:10,w:10,h:16, draw:'plant',
+      dialogue: fixedLine('A plastic plant. Dusty.') });
+    solidObj(36,15,10,10);
+    objects.push({ id:'plantBottom_'+key, x:w-24,y:140,w:10,h:16, draw:'plant',
+      dialogue: fixedLine('A plastic plant. Dusty.') });
+    solidObj(w-24,145,10,10);
+
+    // One subtle, extremely minor environmental difference per floor.
+    if (opts.decor) objects.push(opts.decor(w,h));
+
+    // Night-dim ambient light — see lampAlpha in drawLampGlow().
+    return { w,h, solids, objects, floors:[{x:7,y:7,w:w-14,h:h-14,type:'wood'}],
+      lampAlpha: opts.lampAlpha };
+  }
+
+  SCENES.lobby4 = buildLobby('lobby4', { hasHomeDoor:true, hasStairUp:false, lampAlpha:0.5 });
+  SCENES.lobby3 = buildLobby('lobby3', { hasNPC:true, lampAlpha:0.42,
+    decor:(w,h)=>({ id:'cig_l3', x:w/2+30,y:h-40,w:4,h:2, draw:'cigOnFloor' }) });
+  SCENES.lobby2 = buildLobby('lobby2', { lampAlpha:0.28,
+    decor:(w,h)=>({ id:'bulb_l2', x:w/2-6,y:20,w:12,h:7, draw:'shadowPatch' }) });
+  SCENES.lobby1 = buildLobby('lobby1', { lampAlpha:0.52,
+    decor:(w,h)=>({ id:'stain_l1', x:w/2-40,y:h/2,w:14,h:9, draw:'floorStain' }) });
+  SCENES.lobbyG = buildLobby('lobbyG', { isGround:true, hasStairDown:false, lampAlpha:0.45,
+    decor:(w,h)=>({ id:'chair_lg', x:w-40,y:h/2,w:12,h:12, draw:'movedChair' }) });
+
+  const LOCATION_NAMES = {
+    bedroom:'Bedroom', hallway:'Hallway', living:'Living Room',
+    lobby4:'Lobby — 4th Floor', lobby3:'Lobby — 3rd Floor', lobby2:'Lobby — 2nd Floor',
+    lobby1:'Lobby — 1st Floor', lobbyG:'Lobby — Ground Floor'
+  };
+
+  // =====================================================================
+  // DAY 2 CHANGES
+  // The apartment is not rebuilt for Day 2 — it is quietly mutated.
+  // Small clutter is added, a few dialogue lines shift, one chair moves
+  // a little. Nothing is explained. This is called once, right as the
+  // screen goes black at the end of Day 1.
+  // =====================================================================
+  function applyDay2Changes(){
+    // ---- bedroom: one more cigarette butt that wasn't there before ----
+    SCENES.bedroom.objects.push({ id:'cigButt_bed', x:34,y:60,w:4,h:2, draw:'cigButt',
+      dialogue: lines(['...']) });
+
+    // ---- living/kitchen: small clutter accumulates ----
+    SCENES.living.objects.push({ id:'plate_extra', x:88,y:24,w:8,h:6, draw:'plate',
+      dialogue: lines(['Another one.', '...']) });
+    SCENES.living.objects.push({ id:'can_extra', x:120,y:14,w:5,h:8, draw:'canSingle',
+      dialogue: lines(['...']) });
+    SCENES.living.objects.push({ id:'trash_extra', x:56,y:66,w:12,h:10, draw:'trash',
+      dialogue: lines(['More than before.', '...']) });
+
+    // one chair, slightly moved. Barely noticeable.
+    const chair2 = SCENES.living.objects.find(o=>o.id==='brokenChair2');
+    if (chair2){ chair2.x += 3; chair2.y -= 2; }
+
+    // the photograph: reset so the reaction always starts with silence
+    const photo = SCENES.living.objects.find(o=>o.id==='photo');
+    if (photo){ photo.dialogue.idx = 0; }
+
+    // the fridge still cannot be used — there is simply no appetite now
+    const fridge = SCENES.living.objects.find(o=>o.id==='fridge');
+    if (fridge){ fridge.dialogue = { lines:['...', 'No appetite.'], idx:0 }; }
+
+    // the mirror no longer explains itself at all
+    const mirror = SCENES.hallway.objects.find(o=>o.id==='mirror');
+    if (mirror){ mirror.dialogue = fixedLine('...'); }
+
+    // the television: subtle static, and a line that doesn't add up
+    const tv = SCENES.living.objects.find(o=>o.id==='tv');
+    if (tv){ tv.dialogue = fixedLine("I don't remember plugging it in."); tv.staticNoise = true; }
+  }
+
+  // ---------------------------------------------------------------------
+  // DAY 3 CHANGES
+  // The objective becomes watching the television. Nothing else in the
+  // apartment is rebuilt — only the TV's response changes.
+  // ---------------------------------------------------------------------
+  function applyDay3Changes(){
+    const tv = SCENES.living.objects.find(o=>o.id==='tv');
+    if (tv){
+      tv.staticNoise = true;
+      tv.dialogue = { lines:['Static.', "I don't know what I'm watching.", '...'], idx:0 };
+    }
+  }
+
+  // Day 3 corridor-loop state. Once the player has been to the living
+  // room and turns back toward the bedroom, the hallway stops leading
+  // anywhere. See triggerHallwayLoop().
+  let day3State = { active:false, readyForLoop:false, loopCount:0, darkness:0,
+    bathroomGone:false, bathroomVanishAt:0 };
+
+  // ---------------------------------------------------------------------
+  // DAY 4 CHANGES
+  // The apartment goes back to being just an apartment — no active Day 3
+  // effects remain. The only real change: the exit door finally works.
+  // ---------------------------------------------------------------------
+  function applyDay4Changes(){
+    const exit = SCENES.living.objects.find(o=>o.id==='exitDoor');
+    if (exit){
+      exit.kind = 'transition';
+      exit.dialogue = null;
+      exit.target = { scene:'lobby4', x:22, y:125, dir:'right' };
+    }
+  }
+
+  // Day 4 building-exploration state. `returning` flips once the player
+  // has been turned away at the ground-floor doors, after which the
+  // staircase leads back up instead of further down.
+  let day4State = { returning:false, womanGone:false, womanTalked:false };
+
+  // ---------------------------------------------------------------------
+  // DAY 5 STATE (Part 1 — sofa scene only)
+  // phase: 'none' -> 'sitAvailable' -> 'seated' -> 'fragments' -> 'memory' -> 'done'
+  // shakeAmount / vignetteExtra ramp up slowly during the panic attack and
+  // are read by the main render loop; both stay at 0 whenever day !== 5.
+  // ---------------------------------------------------------------------
+  let day5State = { phase:'none', shakeAmount:0, vignetteExtra:0, couchDisabled:false };
+
+  // ---------------------------------------------------------------------
+  // DAY 6 STATE — "The Key"
+  // The key doesn't exist anywhere until the player has set foot in
+  // every accessible area of the building at least once. Only then,
+  // the next time the hallway scene is (re)loaded, it's simply there —
+  // never spawned while the player is watching.
+  // ---------------------------------------------------------------------
+  const DAY6_REQUIRED_AREAS = ['bedroom','hallway','living','lobby4','lobby3','lobby2','lobby1','lobbyG'];
+  let day6State = { visited:new Set(), keySpawned:false, hasKey:false };
+
+  // ---------------------------------------------------------------------
+  // DAY 7 STATE — "Open That Door" (final sequence of the Alpha)
+  // Every Z-press on the locked door is one "attempt". Nothing else the
+  // player does advances this — the whole day exists around that door.
+  //   attempts 1-2   : normal apartment, small wrongness creeping in
+  //   attempts 3-6    : collapseStage 1->4, the room is erased in pieces
+  //   attempt  7      : the door finally opens — cut to black, credits
+  // ---------------------------------------------------------------------
+  let day7State = { attempts:0, collapseStage:0 };
+
+  // Which objects belong to which "zone" of the room, so they can be
+  // erased zone by zone rather than all at once.
+  const DAY7_LIVING_ZONE  = ['couch','tv','mold1'];
+  const DAY7_KITCHEN_ZONE = ['fridge','kitchenSink','trash','pipe','plate_extra','can_extra','trash_extra'];
+  const DAY7_DINING_ZONE  = ['table','cans','brokenChair2','photo'];
+
+  function collapseHides(o){
+    if (o.id==='lockedDoor') return false; // the one thing that never disappears
+    if (o.hiddenDay7) return true; // the single small object removed on attempt 2
+    if (day7State.collapseStage>=4) return true; // total black — nothing else remains
+    if (day7State.collapseStage>=1 && DAY7_LIVING_ZONE.includes(o.id)) return true;
+    if (day7State.collapseStage>=2 && DAY7_KITCHEN_ZONE.includes(o.id)) return true;
+    if (day7State.collapseStage>=3 && DAY7_DINING_ZONE.includes(o.id)) return true;
+    return false;
+  }
+
+  // =====================================================================
+  // GAME STATE
+  // =====================================================================
+  let currentScene = null;
+  let solids = [];
+  let objects = [];
+  let sceneW = 0, sceneH = 0, offsetX = 0, offsetY = 0;
+  let ended = false;
+  let transitioning = false;
+  let day = 1; // current in-game day (Alpha 0.2 plays through Day 1 and Day 2, then teases Day 3)
+
+  function loadScene(name, spawnX, spawnY, spawnDir){
+    const s = SCENES[name];
+    currentScene = name;
+    solids = s.solids;
+    objects = s.objects;
+    sceneW = s.w; sceneH = s.h;
+    offsetX = Math.round((VIEW_W - sceneW)/2);
+    offsetY = Math.round((VIEW_H - sceneH)/2);
+    player.x = spawnX; player.y = spawnY; player.dir = spawnDir || 'down';
+    lastLocationLabel = computeLocationLabel();
+    showLocationCard(lastLocationLabel);
+
+    // Day 6: track which areas have been visited, and — only once every
+    // accessible area has been — let the key be waiting in the hallway
+    // the next time it's (re)entered. Never while the player can see it
+    // happen.
+    if (day===6){
+      day6State.visited.add(name);
+      if (name==='hallway') checkKeySpawn();
+      // A small unsettling detail: a chair that wasn't quite where it
+      // was left. Nudged a little each time the living room is entered.
+      if (name==='living'){
+        const chair = SCENES.living.objects.find(o=>o.id==='brokenChair2');
+        if (chair){
+          chair.x = 95 + (Math.random()<0.5 ? -1:1)*(2+Math.random()*4);
+          chair.y = 48 + (Math.random()<0.5 ? -1:1)*(2+Math.random()*3);
+        }
+      }
+    }
+  }
+
+  // Day 6: the key can only appear once every accessible area of the
+  // building has been visited at least once this day.
+  function checkKeySpawn(){
+    if (day6State.keySpawned) return;
+    const allVisited = DAY6_REQUIRED_AREAS.every(a=>day6State.visited.has(a));
+    if (!allVisited) return;
+    day6State.keySpawned = true;
+    SCENES.hallway.objects.push({ id:'theKey', x:128,y:107,w:6,h:6, draw:'key', special:'keyPickup' });
+  }
+
+  // ---------------- PLAYER ----------------
+  const player = { x:0,y:0,w:8,h:6, spriteW:10, spriteH:16, dir:'down', moving:false, animT:0 };
+
+  const keys = {};
+  window.addEventListener('keydown', e=>{
+    keys[e.key.toLowerCase()] = true;
+    if (e.key.toLowerCase()==='z') tryInteract();
+  });
+  window.addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
+
+  function aabb(a,b){ return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y; }
+
+  function tryMove(dx,dy){
+    let test = {x:player.x+dx,y:player.y,w:player.w,h:player.h};
+    let blocked=false;
+    for (const s of solids){
+      if (s.tag==='bathroom' && day3State.bathroomGone) continue; // vanished, no collision
+      if (s.tag==='bathroomBarrier' && !day3State.bathroomGone) continue; // barrier off while bathroom exists
+      if (s.tag==='couch' && day5State.couchDisabled) continue; // sat down: sofa doesn't block movement right now
+      if (aabb(test,s)){ blocked=true; break; }
+    }
+    if (!blocked) player.x = Math.max(0, Math.min(sceneW-player.w, player.x+dx));
+
+    test = {x:player.x,y:player.y+dy,w:player.w,h:player.h};
+    blocked=false;
+    for (const s of solids){
+      if (s.tag==='bathroom' && day3State.bathroomGone) continue; // vanished, no collision
+      if (s.tag==='bathroomBarrier' && !day3State.bathroomGone) continue; // barrier off while bathroom exists
+      if (s.tag==='couch' && day5State.couchDisabled) continue; // sat down: sofa doesn't block movement right now
+      if (aabb(test,s)){ blocked=true; break; }
+    }
+    if (!blocked) player.y = Math.max(0, Math.min(sceneH-player.h, player.y+dy));
+  }
+
+  function centerOf(o){ return { cx:o.x+o.w/2, cy:o.y+o.h/2 }; }
+
+  function nearestObject(){
+    const pc = { cx: player.x+player.w/2, cy: player.y+player.h/2 };
+    let best=null, bestD=Infinity;
+    for (const o of objects){
+      if (o.tag==='bathroom' && day3State.bathroomGone) continue; // vanished
+      if (o.tag==='womanNPC' && day4State.womanGone) continue; // gone for good
+      if (day===7 && currentScene==='living' && collapseHides(o)) continue; // erased
+      const c = centerOf(o);
+      const d = Math.hypot(c.cx-pc.cx, c.cy-pc.cy);
+      if (d<20 && d<bestD){ bestD=d; best=o; }
+    }
+    return best;
+  }
+
+  // ---------------- DIALOGUE ----------------
+  const dialogueEl = document.getElementById('dialogue');
+  const promptEl = document.getElementById('promptIcon');
+  const fadeEl = document.getElementById('fade');
+  const objectiveEl = document.getElementById('objective');
+  const dayTitleEl = document.getElementById('dayTitle');
+  const locationCardEl = document.getElementById('locationCard');
+  const controlsEl = document.getElementById('controls');
+  let dialogueTimer = null;
+  let lastLocationLabel = null;
+  let locationCardHideTimer = null;
+
+  // Works out what the small location card should currently read. The
+  // hallway scene contains the bathroom as an alcove rather than its own
+  // scene, so that distinction is made by player position, not by scene.
+  function computeLocationLabel(){
+    if (currentScene==='hallway'){
+      const pcx = player.x+player.w/2, pcy = player.y+player.h/2;
+      if (pcx>=100 && pcx<=160 && pcy>=15 && pcy<=78) return 'Bathroom';
+      return 'Hallway';
+    }
+    return LOCATION_NAMES[currentScene] || currentScene;
+  }
+
+  // Same fade rhythm as the Day Title card, but smaller, upper-right,
+  // and short-lived (~2s on screen). A new card immediately cancels and
+  // replaces whatever card was already showing.
+  function showLocationCard(text){
+    if (locationCardHideTimer) clearTimeout(locationCardHideTimer);
+    locationCardEl.textContent = text;
+    locationCardEl.style.transition = 'none';
+    locationCardEl.style.opacity = '0';
+    void locationCardEl.offsetWidth; // force reflow so the restart is clean
+    locationCardEl.style.transition = 'opacity 0.4s ease';
+    requestAnimationFrame(()=>{ locationCardEl.style.opacity = '1'; });
+    locationCardHideTimer = setTimeout(()=>{
+      locationCardEl.style.opacity = '0';
+    }, 2000);
+  }
+
+  // Catches location changes that happen without a scene change (i.e.
+  // crossing into/out of the bathroom alcove within the hallway scene).
+  function checkLocationChange(){
+    const label = computeLocationLabel();
+    if (label !== lastLocationLabel){
+      lastLocationLabel = label;
+      showLocationCard(label);
+    }
+  }
+
+  // Updates the HUD objective line while keeping its small label intact.
+  function setObjective(text){
+    objectiveEl.innerHTML = '<span class="label">Today\'s Objective</span>' + text;
+  }
+
+  // Shows a centered "Day N" card over the black fade. If a callback is
+  // given, the card fades back out and the callback runs (used to resume
+  // play on Day 2). If no callback is given, the card stays on screen —
+  // used for the Day 3 tease, which is never actually implemented.
+  function showDayTitle(text, holdMs, cb){
+    dayTitleEl.textContent = text;
+    requestAnimationFrame(()=>{ dayTitleEl.style.opacity = '1'; });
+    if (cb){
+      setTimeout(()=>{
+        dayTitleEl.style.opacity = '0';
+        setTimeout(cb, 1200);
+      }, holdMs);
+    }
+  }
+
+  function showLine(text, displayMs){
+    if (text===null || text===undefined){ dialogueEl.classList.remove('show'); return; }
+    dialogueEl.textContent = text;
+    dialogueEl.classList.add('show');
+    if (dialogueTimer) clearTimeout(dialogueTimer);
+    dialogueTimer = setTimeout(()=> dialogueEl.classList.remove('show'), displayMs||3400);
+  }
+
+  function tryInteract(){
+    if (ended || transitioning) return;
+    const o = nearestObject();
+    if (!o) return;
+
+    if (o.isBed){
+      // Day 7 doesn't end by sleeping — it ends at the door. Lying down
+      // early would just skip the whole sequence, so it does nothing.
+      if (day===7) return;
+      if (currentScene==='bedroom'){
+        const pc = {x:player.x+player.w/2, y:player.y+player.h/2};
+        if (pc.x>=o.x && pc.x<=o.x+o.w && pc.y>=o.y && pc.y<=o.y+o.h){ triggerEnding(); }
+      }
+      return;
+    }
+
+    if (o.special==='stair'){ useStaircase(o.stairDir); return; }
+    if (o.special==='glassDoor'){ triggerGlassDoor(); return; }
+    if (o.special==='npc'){ triggerWomanConversation(); return; }
+    if (o.special==='keyPickup'){ triggerKeyPickup(o); return; }
+
+    // Day 7: the locked door no longer gives its usual short dialogue —
+    // every press is now one attempt in the final sequence.
+    if (day===7 && o.id==='lockedDoor'){ handleDoorAttempt(); return; }
+
+    if (o.kind==='transition'){
+      // Day 3: once the player has come back from the living room, the
+      // bedroom door stops working — it just leads back into the same
+      // hallway, over and over.
+      if (day===3 && day3State.active && day3State.readyForLoop &&
+          currentScene==='hallway' && o.id==='doorToBedroom'){
+        triggerHallwayLoop();
+        return;
+      }
+      transitionTo(o.target);
+      return;
+    }
+
+    // Day 5: the sofa becomes interactable for the first time. No normal
+    // dialogue box — pressing Z simply sits the player down and starts
+    // the silent sequence. Outside the brief window where sitting is the
+    // objective, the sofa just does nothing (no fallback dialogue).
+    if (day===5 && o.id==='couch'){
+      if (day5State.phase==='sitAvailable') triggerSofaSit();
+      return;
+    }
+
+    // Day 5 (Part 2): the sink and mirror only get their special
+    // sequence at the right moment; otherwise they fall through to
+    // their normal dialogue below, unchanged.
+    if (day===5 && o.id==='bathSink' && day5State.phase==='awaitSink'){
+      triggerSinkWash();
+      return;
+    }
+    if (day===5 && o.id==='mirror' && day5State.phase==='sinkDone'){
+      triggerMirrorReaction();
+      return;
+    }
+
+    const d = o.dialogue;
+    if (!d) return;
+    const idx = d.loop ? (d.idx % d.lines.length) : Math.min(d.idx, d.lines.length-1);
+    const line = d.lines[idx];
+    showLine(line);
+    if (d.loop) d.idx++;
+    else if (!d.fixed && d.idx < d.lines.length-1) d.idx++;
+  }
+
+  function transitionTo(target){
+    // After the player leaves the 3rd Floor once, the woman is gone for
+    // good — whether or not they ever spoke to her.
+    if (currentScene==='lobby3') day4State.womanGone = true;
+
+    transitioning = true;
+    dialogueEl.classList.remove('show');
+    promptEl.style.display = 'none';
+    fadeEl.style.transitionDuration = '0.9s';
+    fadeEl.style.opacity = '1';
+    setTimeout(()=>{
+      loadScene(target.scene, target.x, target.y, target.dir);
+      if (target.markLivingReturn && day===3 && day3State.active){
+        day3State.readyForLoop = true;
+      }
+      setTimeout(()=>{
+        fadeEl.style.opacity = '0';
+        setTimeout(()=>{ transitioning = false; }, 900);
+      }, 250);
+    }, 900);
+  }
+
+  function triggerEnding(){
+    ended = true;
+    dialogueEl.classList.remove('show');
+    promptEl.style.display = 'none';
+    fadeAudioOut();
+    // Day 5: the panic attack has run the entire rest of the day —
+    // it only lets go now, as the screen fades out with him.
+    if (day===5){
+      day5State.shakeAmount = 0;
+      day5State.vignetteExtra = 0;
+    }
+    fadeEl.style.transitionDuration = '4.5s';
+    fadeEl.style.opacity = '1';
+    // A long, silent pause on black before the next day is teased.
+    setTimeout(advanceDay, 5300);
+  }
+
+  // ---------------- DAY PROGRESSION ----------------
+  // Called once the screen has faded fully to black after sleeping.
+  function advanceDay(){
+    day++;
+    // The Day 3 breakdown ending pins transitioning=true and never clears
+    // it (by design, so nothing moves during the collapse). Any new day
+    // must restore control, or the player is stuck frozen from here on.
+    transitioning = false;
+    if (day === 2){
+      applyDay2Changes();
+      showDayTitle('Day 2', 2400, function(){
+        setObjective('Make breakfast.');
+        loadScene('bedroom', 25, 30, 'down');
+        resumeAmbience();
+        fadeEl.style.transitionDuration = '1.4s';
+        fadeEl.style.opacity = '0';
+        setTimeout(()=>{ ended = false; }, 1400);
+      });
+    } else if (day === 3){
+      applyDay3Changes();
+      showDayTitle('Day 3', 2400, function(){
+        setObjective('Watch something on the television.');
+        day3State = { active:true, readyForLoop:false, loopCount:0, darkness:0,
+          bathroomGone:false, bathroomVanishAt: 8+Math.floor(Math.random()*5) };
+        loadScene('bedroom', 25, 30, 'down');
+        resumeAmbience();
+        fadeEl.style.transitionDuration = '1.4s';
+        fadeEl.style.opacity = '0';
+        setTimeout(()=>{ ended = false; }, 1400);
+      });
+    } else if (day === 4){
+      // Nothing from Day 3 carries over — no darkness, no loop, no
+      // knocking, no vanished bathroom. The apartment is just an
+      // apartment again.
+      stopKnocking();
+      day3State = { active:false, readyForLoop:false, loopCount:0, darkness:0,
+        bathroomGone:false, bathroomVanishAt:0 };
+      day4State = { returning:false, womanGone:false, womanTalked:false };
+      applyDay4Changes();
+      showDayTitle('Day 4', 2400, function(){
+        setObjective('Leave the apartment.');
+        loadScene('bedroom', 25, 30, 'down');
+        resumeAmbience();
+        fadeEl.style.transitionDuration = '1.4s';
+        fadeEl.style.opacity = '0';
+        setTimeout(()=>{ ended = false; }, 1400);
+      });
+    } else if (day === 5){
+      // The apartment looks exactly like Day 4 — no visual changes, no
+      // darkness, no anomalies. Only the objective and the sofa's
+      // behaviour are new; nothing else about the room is touched.
+      day5State = { phase:'none', shakeAmount:0, vignetteExtra:0, couchDisabled:false };
+      showDayTitle('Day 5', 2400, function(){
+        setObjective('Sit on the sofa.');
+        loadScene('bedroom', 25, 30, 'down');
+        resumeAmbience();
+        day5State.phase = 'sitAvailable';
+        fadeEl.style.transitionDuration = '1.4s';
+        fadeEl.style.opacity = '0';
+        setTimeout(()=>{ ended = false; }, 1400);
+      });
+    } else if (day === 6){
+      // A normal-feeling day on the surface — nothing in the apartment
+      // itself is rebuilt. The only thing waiting to happen is the key,
+      // and it won't, until the player has quietly covered the whole
+      // building on their own.
+      day6State = { visited:new Set(), keySpawned:false, hasKey:false };
+      showDayTitle('Day 6', 2400, function(){
+        setObjective('Find the key.');
+        loadScene('bedroom', 25, 30, 'down');
+        resumeAmbience();
+        fadeEl.style.transitionDuration = '1.4s';
+        fadeEl.style.opacity = '0';
+        setTimeout(()=>{ ended = false; }, 1400);
+      });
+    } else if (day === 7){
+      // The final sequence of the Alpha. Everything looks completely
+      // normal at first — the HUD is restored (it was hidden on a
+      // previous attempt, if the player ever got that far), nothing in
+      // the room has changed yet. It only starts coming apart once the
+      // player reaches for the door.
+      day7State = { attempts:0, collapseStage:0 };
+      objectiveEl.style.transition = 'none'; objectiveEl.style.opacity = '1';
+      controlsEl.style.transition = 'none'; controlsEl.style.opacity = '1';
+      showDayTitle('Day 7', 2400, function(){
+        setObjective('Open that door.');
+        loadScene('bedroom', 25, 30, 'down');
+        resumeAmbience();
+        fadeEl.style.transitionDuration = '1.4s';
+        fadeEl.style.opacity = '0';
+        setTimeout(()=>{ ended = false; }, 1400);
+      });
+    } else if (day >= 8){
+      // Beyond the scope of this expansion — teased only, same as every
+      // day before this one once was.
+      showDayTitle('Day '+day, 4000);
+    }
+  }
+
+  // ---------------- DAY 3: THE HALLWAY THAT DOESN'T END ----------------
+  // Every time the player reaches for the bedroom door after having been
+  // back to the living room, the hallway quietly resets itself instead of
+  // letting them through. Dialogue escalates for the first few loops,
+  // then goes silent. Knocking starts and grows. The screen darkens.
+  // A pool of short, unexplained things the protagonist might mutter
+  // mid-loop. Never the same guarantee twice — the randomness is the point.
+  const LOOP_MUTTERS = ['Stop it.', 'Not again.', 'Please.', 'Again.', '...'];
+
+  function triggerHallwayLoop(){
+    day3State.loopCount++;
+    const n = day3State.loopCount;
+
+    if (n >= 25){
+      triggerBreakdownEnding();
+      return;
+    }
+
+    // Fixed escalation for the first three loops, then it's random —
+    // sometimes silence, sometimes a stray, unexplained line.
+    let line = null;
+    if (n === 1) line = 'Wtf...';
+    else if (n === 2) line = "wtf its happening...";
+    else if (n === 3) line = '...';
+    else if (Math.random() < 0.4){
+      line = LOOP_MUTTERS[Math.floor(Math.random()*LOOP_MUTTERS.length)];
+    }
+
+    // Darkness ramps up steadily across the whole loop sequence.
+    day3State.darkness = Math.min(0.97, n*0.075);
+
+    // Knocking starts early and only gets worse.
+    if (n === 3) startKnocking();
+
+    // Somewhere between loop 8 and 12, the bathroom simply isn't there
+    // anymore. It doesn't come back — and the reaction overrides
+    // whatever else might have been said this loop.
+    if (!day3State.bathroomGone && n === day3State.bathroomVanishAt){
+      day3State.bathroomGone = true;
+      line = 'Wait, where is the bathroom';
+    }
+
+    // Reuses the same fade rhythm as a normal door transition, so the
+    // loop feels identical to the mechanic the player already trusts.
+    transitioning = true;
+    dialogueEl.classList.remove('show');
+    promptEl.style.display = 'none';
+    fadeEl.style.transitionDuration = '0.9s';
+    fadeEl.style.opacity = '1';
+    setTimeout(()=>{
+      loadScene('hallway', 215, 108, 'left'); // the "same" hallway, again
+      setTimeout(()=>{
+        fadeEl.style.opacity = '0';
+        setTimeout(()=>{
+          transitioning = false;
+          if (line) showLine(line);
+        }, 900);
+      }, 250);
+    }, 900);
+  }
+
+  // The 25th loop. The hallway itself locks the player in place — no more
+  // fade, no more "next" door. Everything goes silent, the protagonist
+  // hyperventilates, then collapses to the floor.
+  function triggerBreakdownEnding(){
+    ended = true;
+    transitioning = true; // belt-and-braces: nothing moves from here on
+    day3State.active = false;
+    day3State.darkness = 0.97; // force near-total darkness, don't let it lapse
+    dialogueEl.classList.remove('show');
+    promptEl.style.display = 'none';
+
+    // Pin the player in the middle of the corridor.
+    player.x = 125; player.y = 104; player.dir = 'down'; player.moving = false;
+
+    // Everything cuts out fast — ambience, drip, footsteps, pipes, and
+    // the knocking — leaving only the breathing that follows.
+    stopKnocking();
+    if (actx && masterGain){
+      masterGain.gain.cancelScheduledValues(actx.currentTime);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0, actx.currentTime+0.35);
+    }
+
+    setTimeout(()=>{ playHyperventilate(); }, 500);
+
+    setTimeout(()=>{
+      showLine('I cant do this anymore...');
+    }, 3300);
+
+    setTimeout(()=>{
+      fadeEl.style.transitionDuration = '3.5s';
+      fadeEl.style.opacity = '1';
+    }, 4700);
+
+    setTimeout(advanceDay, 8700);
+  }
+
+  // ---------------- KNOCKING (Day 3 only) ----------------
+  // A slow, steady knock that never speeds up — only gets louder, until
+  // it's impossible to ignore. A faster interval reads as footsteps
+  // instead of something pounding on a door.
+  let knockTimer = null;
+  function startKnocking(){
+    scheduleKnock();
+  }
+  function scheduleKnock(){
+    if (!actx || !day3State.active || ended) { knockTimer = null; return; }
+    const interval = 1600 + Math.random()*500; // steady rhythm, not accelerating
+    knockTimer = setTimeout(()=>{
+      playKnock(day3State.loopCount);
+      scheduleKnock();
+    }, interval);
+  }
+  function playKnock(n){
+    if (!actx || !masterGain) return;
+    const vol = Math.min(1.3, 0.15 + n*0.05); // gets brutally loud by the end
+    const t = actx.currentTime;
+
+    // low thump body — what makes it read as a knock, not a footstep
+    const o = actx.createOscillator();
+    o.type = 'triangle'; o.frequency.value = 85;
+    const og = actx.createGain(); og.gain.value = 0;
+    o.connect(og); og.connect(masterGain);
+    og.gain.linearRampToValueAtTime(vol, t+0.008);
+    og.gain.exponentialRampToValueAtTime(0.0001, t+0.22);
+    o.start(t); o.stop(t+0.25);
+
+    // sharp knuckle transient on top
+    const src = actx.createBufferSource();
+    src.buffer = createNoiseBuffer(0.08);
+    const filter = actx.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.value = 1400; filter.Q.value = 1.2;
+    const g = actx.createGain(); g.gain.value = 0;
+    src.connect(filter); filter.connect(g); g.connect(masterGain);
+    g.gain.linearRampToValueAtTime(vol*0.5, t+0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.06);
+    src.start(t); src.stop(t+0.08);
+  }
+  function stopKnocking(){
+    if (knockTimer) clearTimeout(knockTimer);
+    knockTimer = null;
+  }
+
+  // Rapid, ragged breathing for the loop-25 breakdown. Connects straight
+  // to the destination (not through masterGain), so it's still audible
+  // even though ambience has just been muted.
+  function playHyperventilate(){
+    if (!actx) return;
+    let i = 0;
+    const total = 11;
+    (function gust(){
+      if (!actx || i>=total) return;
+      const t = actx.currentTime;
+      const src = actx.createBufferSource();
+      src.buffer = createNoiseBuffer(0.2);
+      const filter = actx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 500 + i*35;
+      filter.Q.value = 0.8;
+      const g = actx.createGain(); g.gain.value = 0;
+      src.connect(filter); filter.connect(g); g.connect(actx.destination);
+      g.gain.linearRampToValueAtTime(0.12 + i*0.01, t+0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.22);
+      src.start(t); src.stop(t+0.25);
+      i++;
+      setTimeout(gust, Math.max(120, 340 - i*20)); // breathing quickens
+    })();
+  }
+
+  // ---------------- DAY 4: THE APARTMENT BUILDING ----------------
+  // Two explicit staircases per floor now — one always goes up, one
+  // always goes down. Each just refuses quietly where there's nowhere
+  // to go (no floor above the 4th, none below the ground floor).
+  function useStaircase(dir){
+    const idx = FLOOR_SEQUENCE.indexOf(currentScene);
+    if (idx===-1) return;
+    // Arrive at the foot of whichever staircase leads back the way
+    // they just came — the "up" stairs if they went down, and vice
+    // versa — instead of the middle of the room.
+    const spawnNearUp = { x:STAIR_X-15, y:STAIR_UP_Y+STAIR_H/2, dir:'left' };
+    const spawnNearDown = { x:STAIR_X-15, y:STAIR_DOWN_Y+STAIR_H/2, dir:'left' };
+    if (dir==='down'){
+      if (idx < FLOOR_SEQUENCE.length-1){
+        transitionTo({ scene:FLOOR_SEQUENCE[idx+1], x:spawnNearUp.x, y:spawnNearUp.y, dir:spawnNearUp.dir });
+      } else {
+        showLine('...');
+      }
+    } else {
+      if (idx>0){
+        transitionTo({ scene:FLOOR_SEQUENCE[idx-1], x:spawnNearDown.x, y:spawnNearDown.y, dir:spawnNearDown.dir });
+      } else {
+        showLine('...');
+      }
+    }
+  }
+
+  // The glass doors never open. A short, fixed exchange, then control
+  // returns and the objective becomes sleep — the only way forward.
+  function triggerGlassDoor(){
+    if (ended || transitioning) return;
+    transitioning = true;
+    player.moving = false;
+    showLine('...');
+    setTimeout(()=>{ showLine("I don't want to leave."); }, 1600);
+    setTimeout(()=>{
+      transitioning = false;
+      day4State.returning = true;
+      setObjective('Go to sleep.');
+    }, 3400);
+  }
+
+  // The only conversation in the entire game. Triggers once; the woman
+  // disappears permanently the first time the player leaves this floor
+  // regardless of whether they ever spoke to her (see transitionTo()).
+  function triggerWomanConversation(){
+    if (day4State.womanTalked || day4State.womanGone) return;
+    day4State.womanTalked = true;
+    transitioning = true;
+    showLine('Hey...');
+    setTimeout(()=>{ showLine('...'); }, 2000);
+    setTimeout(()=>{ showLine('Long time no see.'); }, 3000);
+    setTimeout(()=>{ transitioning = false; }, 3400);
+  }
+
+  // ---------------- DAY 6: THE KEY ----------------
+  // A short, quiet reaction — the protagonist isn't sure whether the
+  // key just appeared or whether he simply missed it before. The game
+  // never answers that question either way.
+  function triggerKeyPickup(keyObj){
+    transitioning = true;
+    showLine('...');
+    setTimeout(()=>{
+      showLine("I don't remember seeing this here.");
+    }, 1500);
+    setTimeout(()=>{
+      transitioning = false;
+      day6State.hasKey = true;
+      const idx = SCENES.hallway.objects.indexOf(keyObj);
+      if (idx!==-1) SCENES.hallway.objects.splice(idx,1);
+      setObjective('Go to sleep.');
+      // The locked door still won't open — but it isn't a stranger's
+      // door anymore, either.
+      const locked = SCENES.living.objects.find(o=>o.id==='lockedDoor');
+      if (locked) locked.dialogue = fixedLine('Not yet.');
+    }, 3300);
+  }
+
+  // ---------------- DAY 7: OPEN THAT DOOR (final sequence) ----------------
+  // Every attempt is one Z-press on the locked door. Nothing else about
+  // the day moves this forward — walking around, inspecting whatever's
+  // still there, none of it matters. Only the door does.
+  function handleDoorAttempt(){
+    if (transitioning) return;
+    day7State.attempts++;
+    const n = day7State.attempts;
+
+    if (n===1){
+      showLine('...');
+      return;
+    }
+
+    if (n===2){
+      showLine('Something feels wrong.');
+      const chair = SCENES.living.objects.find(o=>o.id==='brokenChair2');
+      if (chair){ chair.x += (Math.random()<0.5?-1:1)*4; chair.y += (Math.random()<0.5?-1:1)*3; }
+      const cans = SCENES.living.objects.find(o=>o.id==='cans');
+      if (cans) cans.hiddenDay7 = true; // a kitchen object simply isn't there anymore
+      playDay7Distortion();
+      applyDay7AudioDuck(0);
+      return;
+    }
+
+    if (n===3){
+      // The HUD goes first — objective, controls hint, location card.
+      // The dialogue box stays; it's the one thing still speaking to
+      // the player.
+      objectiveEl.style.transition = 'opacity 1.4s ease';
+      objectiveEl.style.opacity = '0';
+      controlsEl.style.transition = 'opacity 1.4s ease';
+      controlsEl.style.opacity = '0';
+      locationCardEl.style.transition = 'opacity 0.6s ease';
+      locationCardEl.style.opacity = '0';
+      day7State.collapseStage = 1;
+      applyDay7AudioDuck(1);
+      showLine('...');
+      return;
+    }
+
+    if (n===4){ day7State.collapseStage = 2; applyDay7AudioDuck(2); showLine(null); return; }
+    if (n===5){ day7State.collapseStage = 3; applyDay7AudioDuck(3); showLine(null); return; }
+    if (n===6){ day7State.collapseStage = 4; applyDay7AudioDuck(4); showLine(null); return; }
+
+    // n >= 7 — the final attempt.
+    triggerDoorOpenEnding();
+  }
+
+  // A short burst of ugly, filtered noise — the sound distorting rather
+  // than anything visual. Used once, on the second attempt.
+  function playDay7Distortion(){
+    if (!actx || !masterGain) return;
+    const t = actx.currentTime;
+    const src = actx.createBufferSource();
+    src.buffer = createNoiseBuffer(0.6);
+    const filter = actx.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.value = 900; filter.Q.value = 0.4;
+    const g = actx.createGain(); g.gain.value = 0;
+    src.connect(filter); filter.connect(g); g.connect(masterGain);
+    g.gain.linearRampToValueAtTime(0.1, t+0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.6);
+    src.start(t); src.stop(t+0.65);
+  }
+
+  // The room gets quieter and emptier-sounding with every stage —
+  // ambience never cuts out abruptly, it just keeps draining away.
+  function applyDay7AudioDuck(stage){
+    if (!actx || !masterGain) return;
+    const targets = [0.55, 0.32, 0.2, 0.1, 0.02];
+    const target = targets[Math.min(stage, targets.length-1)];
+    masterGain.gain.cancelScheduledValues(actx.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(target, actx.currentTime+1.4);
+  }
+
+  // A short, dry click straight to the speakers (bypassing the ducked
+  // ambience gain entirely) — the key finally turning, echoing in what
+  // is by now a completely empty, black room.
+  function playKeyTurnSound(){
+    if (!actx) return;
+    const t = actx.currentTime;
+    const src = actx.createBufferSource();
+    src.buffer = createNoiseBuffer(0.4);
+    const filter = actx.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.value = 2200; filter.Q.value = 3;
+    const g = actx.createGain(); g.gain.value = 0;
+    src.connect(filter); filter.connect(g); g.connect(actx.destination);
+    g.gain.linearRampToValueAtTime(0.18, t+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.45);
+    src.start(t); src.stop(t+0.5);
+  }
+  function playHandleSound(){
+    if (!actx) return;
+    const t = actx.currentTime;
+    const o = actx.createOscillator();
+    o.type = 'triangle'; o.frequency.value = 180;
+    const g = actx.createGain(); g.gain.value = 0;
+    o.connect(g); g.connect(actx.destination);
+    g.gain.linearRampToValueAtTime(0.15, t+0.02);
+    o.frequency.exponentialRampToValueAtTime(90, t+0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.4);
+    o.start(t); o.stop(t+0.45);
+  }
+
+  // The final attempt. No more dialogue box, no more HUD — just the
+  // key turning, the handle moving, and a hard cut before anything
+  // behind the door can be seen. This is the end of the Alpha; nothing
+  // resumes play after it.
+  function triggerDoorOpenEnding(){
+    ended = true;
+    transitioning = true;
+    dialogueEl.classList.remove('show');
+    promptEl.style.display = 'none';
+
+    setTimeout(playKeyTurnSound, 300);
+    setTimeout(playHandleSound, 1700);
+
+    setTimeout(function(){
+      // A sudden cut, not the usual slow fade — the door starts to
+      // open, and the screen doesn't wait around for the reveal.
+      fadeEl.style.transitionDuration = '0.15s';
+      fadeEl.style.opacity = '1';
+    }, 3100);
+
+    setTimeout(function(){
+      fadeAudioOut();
+      showDayTitle('Thank you for playing.', 3200, function(){
+        showDayTitle('Department 4.B', 2600, function(){
+          showDayTitle('Alpha Version Complete', 999999);
+        });
+      });
+    }, 3400);
+  }
+
+  // ---------------- DAY 5: THE SOFA (PART 1) ----------------
+  // No monsters, no visual glitches, no supernatural events — only
+  // silence, spaced dialogue fragments, and a slow, purely mechanical
+  // panic attack (subtle shake + vignette). The apartment itself never
+  // changes.
+  function triggerSofaSit(){
+    day5State.phase = 'seated';
+    transitioning = true; // disables movement and further interaction
+    player.moving = false;
+    promptEl.style.display = 'none';
+    dialogueEl.classList.remove('show');
+
+    // Snap the player onto the sofa itself — no sitting sprite exists,
+    // so overlapping the sofa's rectangle (and drawing the player on
+    // top of it, same as every frame already does) is what reads as
+    // "sitting on it" rather than standing in front of it. The sofa's
+    // own collision is switched off for the duration (see tryMove), so
+    // this overlap never fights movement while it's active.
+    const couch = SCENES.living.objects.find(o=>o.id==='couch');
+    if (couch){
+      day5State.couchDisabled = true;
+      player.x = couch.x + couch.w/2 - player.w/2;
+      player.y = couch.y + couch.h/2 - player.h/2;
+      player.dir = 'down';
+    }
+
+    // Roughly 8-10 seconds of complete silence before anything happens.
+    const silenceMs = 8000 + Math.random()*2000;
+    setTimeout(()=>{
+      day5State.phase = 'fragments';
+      playFragment(0);
+    }, silenceMs);
+  }
+
+  // No speaker names, no portraits — reuses the existing dialogue box.
+  // Never completes the conversation, never explains it, never
+  // identifies the speaker.
+  const DAY5_FRAGMENTS = ['...Please...', '...Stop it...', "...It's okay...", '...Let me...', "...Don't tell anybody...", '...'];
+
+  function playFragment(i){
+    if (i >= DAY5_FRAGMENTS.length){
+      setTimeout(playFinalMemory, 3000 + Math.random()*2000);
+      return;
+    }
+    // Dialogue lingers slightly longer as the sequence goes on, and the
+    // panic effects ramp up gradually alongside it. Movement stays
+    // disabled throughout (transitioning is already true).
+    const displayMs = 1800 + i*300;
+    day5State.shakeAmount = Math.min(1.4, i*0.28);
+    day5State.vignetteExtra = Math.min(0.25, i*0.045);
+    showLine(DAY5_FRAGMENTS[i], displayMs);
+    const silenceGap = 3000 + Math.random()*3000; // 3-6s of silence between fragments
+    setTimeout(()=>{ playFragment(i+1); }, displayMs + silenceGap);
+  }
+
+  // The final memory: four short beats, spoken by the protagonist, with
+  // no explanation before or after. Ends the sequence and hands control
+  // back to the player.
+  function playFinalMemory(){
+    day5State.phase = 'memory';
+    showLine('...', 1800);
+    setTimeout(()=>{
+      showLine('Someone used to yell here.', 2600);
+      setTimeout(()=>{
+        showLine('...', 2400);
+        setTimeout(()=>{
+          showLine("I don't want to remember.", 3000);
+          setTimeout(endDay5Sequence, 4200);
+        }, 3600);
+      }, 3800);
+    }, 2600);
+  }
+
+  // Restores movement and control, resets the panic effects, and moves
+  // the objective forward. From here the player walks normally — no
+  // more fragments, no more effects — toward the sink and mirror.
+  function endDay5Sequence(){
+    day5State.phase = 'awaitSink';
+    dialogueEl.classList.remove('show');
+
+    // The panic attack itself doesn't end here — the shake and vignette
+    // stay exactly as they were and keep running through the walk to
+    // the bathroom, the sink and the mirror. It only lets go once the
+    // day actually ends (see triggerEnding below).
+
+    // Getting up: turn the sofa's collision back on, then forcibly place
+    // the player just south of it, clear of its footprint entirely. This
+    // doesn't rely on the collision toggle alone — even if it somehow
+    // didn't flip in time, the player is moved to open floor, so there's
+    // no way to end up stuck inside the sofa unable to reach the bathroom.
+    day5State.couchDisabled = false;
+    const couch = SCENES.living.objects.find(o=>o.id==='couch');
+    if (couch){
+      player.x = couch.x + couch.w/2 - player.w/2;
+      player.y = couch.y + couch.h + 3;
+      player.dir = 'down';
+    }
+
+    transitioning = false;
+    setObjective('Wash your face.');
+  }
+
+  // ---------------- DAY 5: BATHROOM (PART 2) ----------------
+  // Plain, sequential dialogue-system text — no distortion, no moving
+  // reflection, no horror beyond what the protagonist says out loud.
+  function triggerSinkWash(){
+    day5State.phase = 'sink';
+    transitioning = true;
+    player.moving = false;
+    promptEl.style.display = 'none';
+    showLine('You splash cold water onto your face.', 2600);
+    setTimeout(()=>{ showLine('...', 1600); }, 4000);
+    setTimeout(()=>{ showLine("It doesn't help much.", 2600); }, 6800);
+    setTimeout(()=>{
+      day5State.phase = 'sinkDone';
+      transitioning = false;
+    }, 10000);
+  }
+
+  // Only available after the sink has been used. Nothing else happens
+  // afterward — the protagonist simply hates what he sees.
+  function triggerMirrorReaction(){
+    day5State.phase = 'mirror';
+    transitioning = true;
+    player.moving = false;
+    promptEl.style.display = 'none';
+    showLine('...', 1600);
+    setTimeout(()=>{ showLine('You look fucking gross.', 2800); }, 3000);
+    setTimeout(()=>{
+      day5State.phase = 'mirrorDone';
+      transitioning = false;
+      setObjective('Go to sleep.');
+    }, 6400);
+  }
+
+  // ---------------- DRAWING ----------------
+  function dotHatch(x,y,w,h,color,density){
+    ctx.fillStyle = color;
+    const n = Math.floor((w*h)*density);
+    for (let i=0;i<n;i++){
+      ctx.fillRect(x+Math.random()*w, y+Math.random()*h, 1, 1);
+    }
+  }
+
+  function drawFloors(){
+    for (const f of SCENES[currentScene].floors){
+      if (f.tag==='bathroom' && day3State.bathroomGone) continue; // vanished
+      if (day===7 && currentScene==='living' && day7State.collapseStage>=4) continue; // the floor is gone too — pure black
+      if (f.type==='wood' || f.type==='wood2'){
+        ctx.fillStyle = f.type==='wood2' ? '#5f4f3a' : '#5a4a36';
+        ctx.fillRect(f.x,f.y,f.w,f.h);
+        ctx.strokeStyle = 'rgba(30,22,14,0.35)'; ctx.lineWidth=1;
+        for (let i=f.x;i<f.x+f.w;i+=14){ ctx.beginPath(); ctx.moveTo(i,f.y); ctx.lineTo(i,f.y+f.h); ctx.stroke(); }
+        dotHatch(f.x,f.y,f.w,f.h,'rgba(20,16,10,0.25)',0.02);
+      } else if (f.type==='tile'){
+        ctx.fillStyle = '#485a5c';
+        ctx.fillRect(f.x,f.y,f.w,f.h);
+        ctx.strokeStyle = 'rgba(15,20,20,0.3)';
+        for (let i=f.x;i<f.x+f.w;i+=12){ ctx.beginPath(); ctx.moveTo(i,f.y); ctx.lineTo(i,f.y+f.h); ctx.stroke(); }
+        for (let j=f.y;j<f.y+f.h;j+=12){ ctx.beginPath(); ctx.moveTo(f.x,j); ctx.lineTo(f.x+f.w,j); ctx.stroke(); }
+        dotHatch(f.x,f.y,f.w,f.h,'rgba(10,15,15,0.25)',0.015);
+      }
+    }
+  }
+
+  function drawWalls(){
+    for (const s of solids){
+      if (!s.isWall) continue;
+      if (s.tag==='bathroom' && day3State.bathroomGone) continue; // vanished
+      if (day===7 && currentScene==='living' && day7State.collapseStage>=4) continue; // walls gone — pure black
+      const darkened = day===7 && currentScene==='living' && day7State.collapseStage>=1;
+      ctx.fillStyle = darkened ? '#0c0b09' : '#221f19';
+      ctx.fillRect(s.x,s.y,s.w,s.h);
+      ctx.fillStyle = darkened ? 'rgba(120,118,100,0.08)' : 'rgba(120,118,100,0.25)';
+      ctx.fillRect(s.x,s.y,s.w,1);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(s.x,s.y+s.h-1,s.w,1);
+    }
+  }
+
+  function drawObjects(){
+    for (const o of objects){
+      if (o.tag==='bathroom' && day3State.bathroomGone) continue; // vanished
+      if (o.tag==='womanNPC' && day4State.womanGone) continue; // gone for good
+      if (day===7 && currentScene==='living' && collapseHides(o)) continue; // erased
+      drawFurniture(o);
+    }
+  }
+
+  // Day 7 only. Purely cosmetic — none of this touches collision or
+  // interaction, just what the room looks like as it comes apart.
+  function drawDay7Collapse(){
+    if (!(day===7 && currentScene==='living')) return;
+    const stage = day7State.collapseStage;
+    if (stage<=0) return;
+
+    // "Objects lose their colours" — a flat desaturating wash over
+    // everything still standing, stronger as the collapse deepens.
+    if (stage>=2){
+      ctx.fillStyle = `rgba(35,33,30,${Math.min(0.55, 0.22+stage*0.08)})`;
+      ctx.fillRect(0,0,sceneW,sceneH);
+    }
+
+    // "Textures glitch" — brief, sparse blocks of wrong colour. Never
+    // covers the whole screen, just enough to feel unstable.
+    if (stage>=1 && stage<4 && Math.random()<0.5){
+      const glitches = 2+Math.floor(Math.random()*3);
+      for (let i=0;i<glitches;i++){
+        ctx.fillStyle = Math.random()<0.5 ? 'rgba(180,180,190,0.12)' : 'rgba(10,8,8,0.3)';
+        ctx.fillRect(Math.random()*sceneW, Math.random()*sceneH, 4+Math.random()*18, 1+Math.random()*3);
+      }
+    }
+
+    // "Shadows appear where they should not exist" — a couple of fixed
+    // dark patches once the room has properly lost its identity.
+    if (stage>=3){
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.beginPath(); ctx.ellipse(sceneW*0.28, sceneH*0.55, 16, 9, 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(sceneW*0.72, sceneH*0.32, 12, 7, 0, 0, 7); ctx.fill();
+    }
+  }
+
+  function drawFurniture(o){
+    const x=o.x,y=o.y,w=o.w,h=o.h;
+    switch(o.draw){
+      case 'clock':
+        ctx.fillStyle = '#3a4a44'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#151d1a'; ctx.fillRect(x+2,y+1,w-4,h-3);
+        break;
+      case 'ashtray':
+        ctx.fillStyle = '#1e1c18';
+        ctx.beginPath(); ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7); ctx.fill();
+        break;
+      case 'desk':
+        ctx.fillStyle = '#4a3c28'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#2f2519'; ctx.fillRect(x+2,y+2,w-4,3);
+        ctx.fillStyle = '#8a8368'; ctx.fillRect(x+4,y+6,w*0.35,h*0.35);
+        ctx.fillStyle = 'rgba(120,150,120,0.5)'; ctx.fillRect(x+w-10,y+6,5,8);
+        break;
+      case 'brokenChair':
+        ctx.strokeStyle = '#4e3d26'; ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(x+2,y+2); ctx.lineTo(x+w-4,y+6);
+        ctx.moveTo(x+2,y+2); ctx.lineTo(x+3,y+h-2);
+        ctx.moveTo(x+w-4,y+6); ctx.lineTo(x+w-6,y+h-4);
+        ctx.stroke();
+        break;
+      case 'clothes':
+        ctx.fillStyle = '#5a4658'; ctx.fillRect(x,y+6,w*0.55,h*0.5);
+        ctx.fillStyle = '#3d5a56'; ctx.fillRect(x+w*0.4,y,w*0.5,h*0.6);
+        ctx.fillStyle = '#6b5a34'; ctx.fillRect(x+w*0.15,y+2,w*0.4,h*0.5);
+        break;
+      case 'bottle':
+        ctx.fillStyle = 'rgba(120,150,120,0.55)'; ctx.fillRect(x,y,w,h);
+        break;
+      case 'stain':
+        ctx.fillStyle = 'rgba(40,35,25,0.3)';
+        ctx.beginPath(); ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7); ctx.fill();
+        break;
+      case 'doorTransition':
+        ctx.fillStyle = '#463825'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#2a2015'; ctx.fillRect(x+2,y+1,w-4,h-2);
+        ctx.fillStyle = 'rgba(200,175,110,0.7)';
+        if (w>h) ctx.fillRect(x+w-6,y+h/2-1,2,2); else ctx.fillRect(x+w/2-1,y+h-6,2,2);
+        break;
+      case 'bathSink':
+        ctx.fillStyle = '#5a6a68'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#24302e'; ctx.fillRect(x+3,y+2,w-6,h-4);
+        break;
+      case 'toilet':
+        ctx.fillStyle = '#4a5654'; ctx.fillRect(x+w*0.15,y,w*0.7,h*0.4);
+        ctx.fillStyle = '#5a6a68'; ctx.fillRect(x,y+h*0.4,w,h*0.6);
+        break;
+      case 'shower':
+        ctx.strokeStyle = '#48524e'; ctx.lineWidth=2; ctx.strokeRect(x,y,w,h);
+        ctx.fillStyle = 'rgba(110,130,110,0.25)'; ctx.fillRect(x+2,y+2,w-4,h-4);
+        ctx.fillStyle = 'rgba(80,100,60,0.35)';
+        ctx.beginPath(); ctx.ellipse(x+w*0.3,y+h*0.7,4,3,0,0,7); ctx.fill();
+        break;
+      case 'mirror':
+        ctx.fillStyle = '#5f5a48'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#0c0e0e'; ctx.fillRect(x+1,y+1,w-2,h-2);
+        break;
+      case 'fridge':
+        ctx.fillStyle = '#8f8c78'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#6c6a58'; ctx.fillRect(x+2,y+h*0.35,w-4,2);
+        ctx.fillStyle = 'rgba(90,110,70,0.3)'; ctx.fillRect(x+3,y+h*0.6,w-8,h*0.25);
+        break;
+      case 'sink':
+        ctx.fillStyle = '#6a6558'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#2c2a22'; ctx.fillRect(x+6,y+2,16,h-4);
+        ctx.fillStyle = '#a39c85';
+        for(let i=0;i<4;i++) ctx.fillRect(x+26+i*4, y+2+(i%2), 6, h-4-i);
+        break;
+      case 'trash':
+        ctx.fillStyle = '#22241a';
+        ctx.beginPath(); ctx.ellipse(x+w*0.3,y+h*0.6,w*0.28,h*0.4,0,0,7); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x+w*0.65,y+h*0.5,w*0.3,h*0.45,0,0,7); ctx.fill();
+        break;
+      case 'pipe':
+        ctx.fillStyle = '#4a5350'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = 'rgba(140,170,160,0.4)'; ctx.fillRect(x,y+h-2,w,2);
+        break;
+      case 'table':
+        ctx.fillStyle = '#4e3d26'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#332715'; ctx.fillRect(x,y,w,3);
+        ctx.fillStyle = '#18160f';
+        ctx.beginPath(); ctx.arc(x+14,y+10,4,0,7); ctx.fill();
+        ctx.fillStyle = '#c9c0a0';
+        for(let i=0;i<5;i++) ctx.fillRect(x+11+i*1.6,y+8,1,3);
+        break;
+      case 'cans':
+        ctx.fillStyle = '#84907c';
+        for(let i=0;i<3;i++) ctx.fillRect(x+i*5,y+(i===1?2:0),4,8);
+        break;
+      case 'couch':
+        ctx.fillStyle = '#6b3f3a'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#4a2b28'; ctx.fillRect(x,y,w,4);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(x+w*0.4,y+h*0.3,w*0.2,h*0.4);
+        break;
+      case 'tv':
+        ctx.fillStyle = '#33362f'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#0e100e'; ctx.fillRect(x+3,y+3,w-8,h-8);
+        ctx.fillStyle = 'rgba(200,170,90,0.5)'; ctx.fillRect(x+w-6,y+h-5,2,2);
+        // Day 2: very subtle static on the screen. No images, ever.
+        if (o.staticNoise){
+          ctx.fillStyle = 'rgba(180,185,175,0.12)';
+          for (let i=0;i<6;i++){
+            ctx.fillRect(x+4+Math.random()*(w-12), y+4+Math.random()*(h-10), 1, 1);
+          }
+        }
+        break;
+      case 'mold':
+        ctx.fillStyle = 'rgba(85,105,65,0.35)';
+        ctx.beginPath(); ctx.ellipse(x+w*0.4,y+h*0.4,w*0.4,h*0.35,0,0,7); ctx.fill();
+        ctx.fillStyle = 'rgba(60,80,45,0.4)';
+        ctx.beginPath(); ctx.ellipse(x+w*0.65,y+h*0.6,w*0.3,h*0.3,0,0,7); ctx.fill();
+        break;
+      case 'photo':
+        ctx.fillStyle = '#4e3d26'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#141210'; ctx.fillRect(x+2,y+2,w-4,h-4);
+        ctx.fillStyle = '#877050'; ctx.fillRect(x+3,y+3,3,h-6);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x+7,y+3,4,h-6);
+        ctx.fillRect(x+11,y+3,3,h-6);
+        // Day 2: the stain has moved, one face is slightly more visible.
+        // Never explained.
+        if (day>=2){
+          ctx.fillStyle = 'rgba(135,112,80,0.5)';
+          ctx.fillRect(x+11,y+3,3,h-6);
+        }
+        break;
+      case 'cigButt':
+        ctx.fillStyle = '#c9c0a0'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#8a5a30'; ctx.fillRect(x,y,w*0.4,h);
+        break;
+      case 'plate':
+        ctx.fillStyle = '#8f897a';
+        ctx.beginPath(); ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7); ctx.fill();
+        ctx.fillStyle = 'rgba(60,55,40,0.4)';
+        ctx.beginPath(); ctx.ellipse(x+w/2,y+h/2,w*0.3,h*0.3,0,0,7); ctx.fill();
+        break;
+      case 'canSingle':
+        ctx.fillStyle = '#84907c'; ctx.fillRect(x,y,w,h);
+        break;
+      case 'key':
+        // Small enough to almost miss, on purpose — a faint warm glint
+        // is the only thing that makes it stand out on the floor.
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath(); ctx.ellipse(x+w/2,y+h+0.5,2.5,1,0,0,7); ctx.fill();
+        ctx.strokeStyle = '#c9a84a'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x+1.5,y+3,1.6,0,7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+3,y+3); ctx.lineTo(x+w,y+3); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+w-1,y+3); ctx.lineTo(x+w-1,y+5); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,235,180,0.4)';
+        ctx.beginPath(); ctx.arc(x+1.5,y+3,2.2,0,7); ctx.fill();
+        break;
+      case 'lockedDoor':
+        ctx.fillStyle = '#33291d'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#1a140d'; ctx.fillRect(x+1,y+2,w-2,h-4);
+        ctx.fillStyle = '#5a4d34'; ctx.fillRect(x+w/2-2,y+1,4,h-2);
+        break;
+      case 'exitDoor':
+        ctx.fillStyle = '#463825'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#2a2015'; ctx.fillRect(x+2,y+1,w-4,h-2);
+        ctx.fillStyle = 'rgba(190,165,100,0.6)'; ctx.fillRect(x+w-4,y+h/2-1,2,2);
+        break;
+      case 'aptDoor':
+        ctx.fillStyle = '#241c12'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#3c2f1e'; ctx.fillRect(x+1,y+1,w-2,h-2);
+        ctx.fillStyle = '#2a2116';
+        if (h>=w){
+          ctx.fillRect(x+2,y+3,w-4,h*0.38);
+          ctx.fillRect(x+2,y+h*0.52,w-4,h*0.36);
+          ctx.fillStyle = '#7a6b47'; ctx.fillRect(x+w-4,y+h*0.5-1,2,2);
+        } else {
+          ctx.fillRect(x+3,y+2,w*0.4,h-4);
+          ctx.fillRect(x+w*0.55,y+2,w*0.35,h-4);
+          ctx.fillStyle = '#7a6b47'; ctx.fillRect(x+w*0.5-1,y+h-5,2,2);
+        }
+        break;
+      case 'stairs':
+        // A shallow landing, flush against the wall — starts exactly
+        // where the wall does. Just tread lines, no arrow: which one
+        // goes up and which goes down is something you learn by using it.
+        ctx.fillStyle = '#332e24'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#211f18';
+        for (let i=0;i<4;i++) ctx.fillRect(x+2,y+2+i*3.4,w-4,1.6);
+        break;
+      case 'window':
+        // Dark, night-blue glass. A little warm light bleeds through
+        // one pane — the only warmth in an otherwise dim hallway.
+        ctx.fillStyle = '#12151d'; ctx.fillRect(x,y,w,h);
+        ctx.strokeStyle = '#2a2820'; ctx.lineWidth=1; ctx.strokeRect(x,y,w,h);
+        ctx.beginPath(); ctx.moveTo(x+w/2,y); ctx.lineTo(x+w/2,y+h); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x,y+h/2); ctx.lineTo(x+w,y+h/2); ctx.stroke();
+        {
+          const g = ctx.createRadialGradient(x+w*0.28,y+h*0.4,1,x+w*0.28,y+h*0.4,w*0.9);
+          g.addColorStop(0,'rgba(225,175,105,0.4)');
+          g.addColorStop(1,'rgba(225,175,105,0)');
+          ctx.fillStyle = g; ctx.fillRect(x-22,y-22,w+44,h+44);
+        }
+        break;
+      case 'rug':
+        ctx.fillStyle = '#5a2a28'; ctx.fillRect(x,y,w,h);
+        ctx.strokeStyle = 'rgba(20,10,10,0.4)'; ctx.lineWidth=1; ctx.strokeRect(x+1,y+1,w-2,h-2);
+        ctx.fillStyle = 'rgba(90,50,45,0.5)';
+        for (let i=y+6;i<y+h-4;i+=10) ctx.fillRect(x+2,i,w-4,1);
+        break;
+      case 'plant':
+        ctx.fillStyle = '#4a3626'; ctx.fillRect(x+1,y+h-6,w-2,6);
+        ctx.fillStyle = '#3d5a3a';
+        ctx.beginPath(); ctx.ellipse(x+w/2,y+4,w/2,6,0,0,7); ctx.fill();
+        ctx.fillStyle = '#2e4a2c';
+        ctx.beginPath(); ctx.ellipse(x+w*0.3,y+6,3,4,0,0,7); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x+w*0.7,y+6,3,4,0,0,7); ctx.fill();
+        break;
+      case 'npcWoman':
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath(); ctx.ellipse(x+w/2,y+h+1,4,2,0,0,7); ctx.fill();
+        ctx.fillStyle = '#2c2a30'; ctx.fillRect(x+2,y+6,w-4,h-6);
+        ctx.fillStyle = '#c9b8a0'; ctx.fillRect(x+3,y+2,w-6,6);
+        ctx.fillStyle = '#1c1a1a'; ctx.fillRect(x+2,y,w-4,4);
+        break;
+      case 'glassDoor':
+        ctx.fillStyle = 'rgba(20,24,30,0.5)'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = 'rgba(40,44,50,0.5)'; ctx.fillRect(x+2,y+1,w-4,h-2);
+        ctx.strokeStyle = 'rgba(150,160,150,0.4)'; ctx.lineWidth=1; ctx.strokeRect(x,y,w,h);
+        ctx.beginPath(); ctx.moveTo(x+w/2,y); ctx.lineTo(x+w/2,y+h); ctx.stroke();
+        {
+          const g = ctx.createRadialGradient(x+w*0.5,y+h*0.35,1,x+w*0.5,y+h*0.35,w*0.7);
+          g.addColorStop(0,'rgba(220,175,110,0.3)');
+          g.addColorStop(1,'rgba(220,175,110,0)');
+          ctx.fillStyle = g; ctx.fillRect(x-20,y-20,w+40,h+40);
+        }
+        break;
+      case 'mat':
+        ctx.fillStyle = '#3a3126'; ctx.fillRect(x,y,w,h);
+        break;
+      case 'shadowPatch':
+        ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(x,y,w,h);
+        break;
+      case 'floorStain':
+        ctx.fillStyle = 'rgba(35,30,20,0.3)';
+        ctx.beginPath(); ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7); ctx.fill();
+        break;
+      case 'cigOnFloor':
+        ctx.fillStyle = '#c9c0a0'; ctx.fillRect(x,y,w,h);
+        ctx.fillStyle = '#8a5a30'; ctx.fillRect(x,y,w*0.4,h);
+        break;
+      case 'movedChair':
+        ctx.strokeStyle = '#4e3d26'; ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(x+2,y+2); ctx.lineTo(x+w-4,y+6);
+        ctx.moveTo(x+2,y+2); ctx.lineTo(x+3,y+h-2);
+        ctx.moveTo(x+w-4,y+6); ctx.lineTo(x+w-6,y+h-4);
+        ctx.stroke();
+        break;
+      default:
+        if (o.isBed){
+          ctx.fillStyle = '#382c1e'; ctx.fillRect(x,y,w,h);
+          ctx.fillStyle = '#3d5a52'; ctx.fillRect(x+2,y+8,w-4,h-10);
+          ctx.fillStyle = '#8f8977'; ctx.fillRect(x+3,y+2,16,7);
+        }
+    }
+  }
+
+  function drawPlayer(){
+    const p = player;
+    const bobbing = p.moving ? Math.sin(p.animT*0.02)*1 : 0;
+    const baseX = p.x - (p.spriteW-p.w)/2;
+    const baseY = p.y - (p.spriteH - p.h) + bobbing;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(p.x+p.w/2, p.y+p.h+1, 5, 2, 0, 0, 7);
+    ctx.fill();
+
+    ctx.fillStyle = '#3a4048';
+    ctx.fillRect(baseX, baseY+6, p.spriteW, p.spriteH-6);
+    ctx.fillStyle = '#c4b096';
+    ctx.fillRect(baseX+1, baseY, p.spriteW-2, 7);
+    ctx.fillStyle = '#25201a';
+    ctx.fillRect(baseX+1, baseY, p.spriteW-2, 3);
+
+    if (p.dir==='down'){
+      ctx.fillStyle = '#171412';
+      ctx.fillRect(baseX+3, baseY+4, 1,1);
+      ctx.fillRect(baseX+6, baseY+4, 1,1);
+    }
+  }
+
+  // Building lobbies read as nighttime — dim overall, with the window's
+  // warm glow (drawn afterward, as an object) cutting through it. Drawn
+  // before drawObjects() so doors, stairs and the window's own glow all
+  // sit legibly on top of the dimming rather than under it.
+  function drawNightOverlay(){
+    const s = SCENES[currentScene];
+    if (!s || s.lampAlpha == null) return;
+    const dim = Math.max(0, Math.min(0.5, 0.62 - s.lampAlpha*0.55));
+    ctx.fillStyle = `rgba(4,5,9,${dim})`;
+    ctx.fillRect(0,0,sceneW,sceneH);
+  }
+
+  function drawLampGlow(){
+    if (day===7 && currentScene==='living' && day7State.collapseStage>=3) return; // no lights left
+    const t = performance.now()*0.001;
+    let flicker = 0.03*Math.sin(t*3.1)+0.02*Math.sin(t*7.7);
+    // Day 6: every so often the light dips hard for a moment, like a
+    // fixture that's about to go — never enough to lose the room.
+    if (day===6 && Math.sin(t*0.6) > 0.985){
+      flicker -= 0.05 + Math.random()*0.03;
+    }
+    const cx = sceneW*0.55, cy = sceneH*0.4;
+    let alpha = (SCENES[currentScene] && SCENES[currentScene].lampAlpha != null)
+      ? SCENES[currentScene].lampAlpha : 1;
+    if (day===7 && currentScene==='living' && day7State.collapseStage>=1){
+      alpha *= (1 - day7State.collapseStage*0.3); // guttering out, stage by stage
+    }
+    const grad = ctx.createRadialGradient(cx,cy,4,cx,cy,Math.max(sceneW,sceneH)*0.5);
+    grad.addColorStop(0, `rgba(210,175,110,${Math.max(0,(0.08+flicker)*alpha)})`);
+    grad.addColorStop(1, 'rgba(210,175,110,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,sceneW,sceneH);
+  }
+
+  function drawPrompt(){
+    if (day===7 && day7State.collapseStage>=1){ promptEl.style.display = 'none'; return; }
+    const o = (!ended && !transitioning) ? nearestObject() : null;
+    if (o){
+      const c = centerOf(o);
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = rect.width / VIEW_W;
+      const scaleY = rect.height / VIEW_H;
+      promptEl.style.left = ((c.cx+offsetX)*scaleX) + 'px';
+      promptEl.style.top = ((o.y+offsetY)*scaleY) + 'px';
+      promptEl.style.display = 'block';
+    } else {
+      promptEl.style.display = 'none';
+    }
+  }
+
+  // ---------------- MAIN LOOP ----------------
+  let last = performance.now();
+  function loop(now){
+    const dt = now-last; last = now;
+    if (!ended && !transitioning){
+      let dx=0, dy=0;
+      const speed = 0.055*dt;
+      if (keys['arrowup']||keys['w']){ dy-=speed; player.dir='up'; }
+      if (keys['arrowdown']||keys['s']){ dy+=speed; player.dir='down'; }
+      if (keys['arrowleft']||keys['a']){ dx-=speed; player.dir='left'; }
+      if (keys['arrowright']||keys['d']){ dx+=speed; player.dir='right'; }
+      player.moving = (dx!==0||dy!==0);
+      if (player.moving) player.animT += dt;
+      if (dx!==0 && dy!==0){ dx*=0.7071; dy*=0.7071; }
+      tryMove(dx,dy);
+      checkLocationChange();
+    }
+
+    ctx.fillStyle = '#0b0c0b';
+    ctx.fillRect(0,0,VIEW_W,VIEW_H);
+
+    // Day 5: an extremely subtle, purely mechanical screen shake during
+    // the panic-attack portion of the sofa sequence. Zero on every other
+    // day and zero outside that window.
+    let shakeX = 0, shakeY = 0;
+    if (day===5 && day5State.shakeAmount > 0){
+      shakeX = (Math.random()-0.5) * day5State.shakeAmount;
+      shakeY = (Math.random()-0.5) * day5State.shakeAmount;
+    }
+
+    ctx.save();
+    ctx.translate(offsetX+shakeX, offsetY+shakeY);
+    drawFloors();
+    drawWalls();
+    drawNightOverlay();
+    drawObjects();
+    drawDay7Collapse();
+    drawPlayer();
+    drawLampGlow();
+    ctx.restore();
+
+    // Day 3: the hallway loop slowly swallows the light. Stays even
+    // after the loop mechanic itself stops (e.g. during the breakdown).
+    if (day===3 && day3State.darkness > 0){
+      ctx.fillStyle = `rgba(0,0,0,${day3State.darkness})`;
+      ctx.fillRect(0,0,VIEW_W,VIEW_H);
+    }
+
+    // Day 5: a slight additional vignette darkening that grows with the
+    // panic attack. No flashing, no color shifts — a plain, slow darkening.
+    if (day===5 && day5State.vignetteExtra > 0){
+      const g = ctx.createRadialGradient(VIEW_W/2,VIEW_H/2,10,VIEW_W/2,VIEW_H/2,VIEW_W*0.62);
+      g.addColorStop(0,'rgba(0,0,0,0)');
+      g.addColorStop(1,`rgba(0,0,0,${day5State.vignetteExtra})`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,VIEW_W,VIEW_H);
+    }
+
+    drawPrompt();
+
+    requestAnimationFrame(loop);
+  }
+
+  // ---------------- AMBIENT AUDIO ----------------
+  let actx = null;
+  let masterGain = null;
+
+  function createNoiseBuffer(duration=2){
+    const bufferSize = actx.sampleRate*duration;
+    const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = Math.random()*2-1;
+    return buffer;
+  }
+
+  function startAmbience(){
+    actx = new (window.AudioContext||window.webkitAudioContext)();
+    masterGain = actx.createGain();
+    masterGain.gain.value = 0.0;
+    masterGain.connect(actx.destination);
+    masterGain.gain.linearRampToValueAtTime(0.55, actx.currentTime+2.5);
+
+    const hum = actx.createOscillator();
+    hum.type='sine'; hum.frequency.value=82;
+    const humGain = actx.createGain(); humGain.gain.value=0.05;
+    const humLFO = actx.createOscillator(); humLFO.frequency.value=6.5;
+    const humLFOGain = actx.createGain(); humLFOGain.gain.value=0.012;
+    humLFO.connect(humLFOGain); humLFOGain.connect(humGain.gain);
+    hum.connect(humGain); humGain.connect(masterGain);
+    hum.start(); humLFO.start();
+
+    const trafficSrc = actx.createBufferSource();
+    trafficSrc.buffer = createNoiseBuffer(4); trafficSrc.loop=true;
+    const trafficFilter = actx.createBiquadFilter();
+    trafficFilter.type='bandpass'; trafficFilter.frequency.value=350; trafficFilter.Q.value=0.6;
+    const trafficGain = actx.createGain(); trafficGain.gain.value=0.035;
+    trafficSrc.connect(trafficFilter); trafficFilter.connect(trafficGain); trafficGain.connect(masterGain);
+    trafficSrc.start();
+
+    const windSrc = actx.createBufferSource();
+    windSrc.buffer = createNoiseBuffer(4); windSrc.loop=true;
+    const windFilter = actx.createBiquadFilter();
+    windFilter.type='bandpass'; windFilter.frequency.value=1200; windFilter.Q.value=0.5;
+    const windGain = actx.createGain(); windGain.gain.value=0.02;
+    const windLFO = actx.createOscillator(); windLFO.frequency.value=0.07;
+    const windLFOGain = actx.createGain(); windLFOGain.gain.value=0.015;
+    windLFO.connect(windLFOGain); windLFOGain.connect(windGain.gain);
+    windSrc.connect(windFilter); windFilter.connect(windGain); windGain.connect(masterGain);
+    windSrc.start(); windLFO.start();
+
+    scheduleDrip();
+    scheduleFootsteps();
+    schedulePipeCreak();
+  }
+
+  function scheduleDrip(){
+    if (ended) return;
+    const delay = 3500 + Math.random()*5500;
+    setTimeout(()=>{
+      if (!actx || ended) return;
+      const o = actx.createOscillator();
+      o.type='sine'; o.frequency.value=1400;
+      const g = actx.createGain(); g.gain.value=0.0;
+      o.connect(g); g.connect(masterGain);
+      const t = actx.currentTime;
+      g.gain.linearRampToValueAtTime(0.09, t+0.005);
+      o.frequency.exponentialRampToValueAtTime(700, t+0.12);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.15);
+      o.start(t); o.stop(t+0.18);
+      scheduleDrip();
+    }, delay);
+  }
+
+  function scheduleFootsteps(){
+    if (ended) return;
+    const delay = 7000 + Math.random()*9000;
+    setTimeout(()=>{
+      if (!actx || ended) return;
+      const steps = 2+Math.floor(Math.random()*3);
+      for (let i=0;i<steps;i++){
+        setTimeout(()=>{
+          if (!actx || ended) return;
+          const src = actx.createBufferSource();
+          src.buffer = createNoiseBuffer(0.3);
+          const filter = actx.createBiquadFilter();
+          filter.type='lowpass'; filter.frequency.value=180;
+          const g = actx.createGain(); g.gain.value=0.0;
+          src.connect(filter); filter.connect(g); g.connect(masterGain);
+          const t = actx.currentTime;
+          g.gain.linearRampToValueAtTime(0.06, t+0.01);
+          g.gain.exponentialRampToValueAtTime(0.0001, t+0.15);
+          src.start(t); src.stop(t+0.2);
+        }, i*380);
+      }
+      scheduleFootsteps();
+    }, delay);
+  }
+
+  function schedulePipeCreak(){
+    if (ended) return;
+    const delay = 9000 + Math.random()*11000;
+    setTimeout(()=>{
+      if (!actx || ended) return;
+      const o = actx.createOscillator();
+      o.type='triangle'; o.frequency.value=520+Math.random()*80;
+      const filter = actx.createBiquadFilter();
+      filter.type='bandpass'; filter.frequency.value=700; filter.Q.value=4;
+      const g = actx.createGain(); g.gain.value=0.0;
+      o.connect(filter); filter.connect(g); g.connect(masterGain);
+      const t = actx.currentTime;
+      g.gain.linearRampToValueAtTime(0.045, t+0.05);
+      o.frequency.exponentialRampToValueAtTime(o.frequency.value*0.7, t+0.6);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.8);
+      o.start(t); o.stop(t+0.9);
+      schedulePipeCreak();
+    }, delay);
+  }
+
+  // Day 6 only: a faint, unplaceable noise from somewhere in the
+  // building — never the same twice, never explained, never repeated
+  // often enough to feel like a pattern.
+  function scheduleDistantNoise(){
+    if (ended || day!==6) return;
+    const delay = 14000 + Math.random()*16000;
+    setTimeout(()=>{
+      if (!actx || ended || day!==6) return;
+      const src = actx.createBufferSource();
+      src.buffer = createNoiseBuffer(0.5);
+      const filter = actx.createBiquadFilter();
+      filter.type = 'lowpass'; filter.frequency.value = 220 + Math.random()*120;
+      const g = actx.createGain(); g.gain.value = 0;
+      src.connect(filter); filter.connect(g); g.connect(masterGain);
+      const t = actx.currentTime;
+      g.gain.linearRampToValueAtTime(0.05, t+0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.5);
+      src.start(t); src.stop(t+0.55);
+      scheduleDistantNoise();
+    }, delay);
+  }
+
+  function fadeAudioOut(){
+    if (!actx || !masterGain) return;
+    masterGain.gain.linearRampToValueAtTime(0, actx.currentTime+4);
+  }
+
+  // Brings ambience back up for Day 2 and restarts the one-shot sound
+  // chains (drip / footsteps / pipes), which stop rescheduling themselves
+  // once `ended` is true.
+  function resumeAmbience(){
+    if (!actx || !masterGain) return;
+    masterGain.gain.cancelScheduledValues(actx.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, actx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0.55, actx.currentTime+2.5);
+    scheduleDrip();
+    scheduleFootsteps();
+    schedulePipeCreak();
+    scheduleDistantNoise(); // self-gates to Day 6 only
+  }
+
+  // ---------------- START ----------------
+  loadScene('bedroom', 25, 30, 'down');
+
+  document.getElementById('startOverlay').addEventListener('click', function startHandler(){
+    startAmbience();
+    this.style.transition = 'opacity 1s ease';
+    this.style.opacity = '0';
+    setTimeout(()=>{ this.style.display='none'; }, 1000);
+    this.removeEventListener('click', startHandler);
+  });
+
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
