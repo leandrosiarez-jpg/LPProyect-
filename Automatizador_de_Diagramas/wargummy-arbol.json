@@ -1,0 +1,49 @@
+{
+  "War Gummy": {
+    "Concepto": [
+      "Shooter de plataformas 2D competitivo (PvP)",
+      "Roblox - Parts 3D + SurfaceGUI para renderizar 2D",
+      "Terreno destructible y edificable",
+      "Estética de caramelos + sátira de guerra (Full Metal Jacket, Unicorn Wars)"
+    ],
+    "Core Gameplay Loop": {
+      "Estructura de partida": [
+        "3 rondas de 3 minutos"
+      ],
+      "Objetivos dinámicos": [
+        "Captura de bandera",
+        "Eliminación de VIP",
+        "Punto por mayor progreso si se agota el tiempo"
+      ],
+      "Intermedio (Preparación)": [
+        "40 segundos de duración",
+        "Descanso",
+        "Fortificación del castillo",
+        "Gestión de recursos"
+      ]
+    },
+    "Mecánicas": {
+      "Equipos y clases": [
+        "6 a 12 jugadores en plano lateral",
+        "3 clases jugables (agilidad y carga de bloques)",
+        "Construcción con bloques (Parts + SurfaceGUI)"
+      ],
+      "Tienda y fortificación": [
+        "Compra de armas alternativas",
+        "Compra de suministros",
+        "Reparación del castillo"
+      ]
+    },
+    "Ambientación y narrativa": {
+      "Facciones": [
+        "Ositos de goma (sátira fuerzas EEUU)",
+        "Milicias locales (sátira Viet Cong)"
+      ],
+      "El Coronel": [
+        "Asigna misiones",
+        "Visible solo para su propio equipo",
+        "Nexo narrativo y estratégico"
+      ]
+    }
+  }
+}

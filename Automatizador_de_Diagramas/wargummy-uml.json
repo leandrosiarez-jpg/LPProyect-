@@ -1,0 +1,58 @@
+{
+  "Partida": {
+    "type": "class",
+    "attributes": ["rondas: int = 3", "duracionRonda: string = 3min", "entretiempo: string = 40s"],
+    "methods": ["iniciarRonda()", "calcularGanador()"],
+    "compuestaPor": "Ronda"
+  },
+  "Ronda": {
+    "type": "class",
+    "attributes": ["puntosOtorgados: int = 1"],
+    "methods": ["evaluarObjetivo()", "otorgarPunto()"],
+    "requiere": "Objetivo"
+  },
+  "Objetivo": {
+    "type": "class",
+    "attributes": ["tipo: string (CapturaDeBandera | EliminarVIP)"]
+  },
+  "Equipo": {
+    "type": "class",
+    "attributes": ["faccion: string (Ositos EEUU | Viet Cong)", "jugadores: int (3-6)"],
+    "methods": ["gestionarCoronel()"],
+    "liderado": "Coronel",
+    "defiende": "Castillo"
+  },
+  "Coronel": {
+    "type": "class",
+    "attributes": ["visibleSoloParaSuEquipo: bool = true"],
+    "methods": ["asignarMision()"]
+  },
+  "Castillo": {
+    "type": "class",
+    "attributes": ["puntosDeFortificacion: int"],
+    "methods": ["reparar()", "defender()"]
+  },
+  "Jugador": {
+    "type": "class",
+    "attributes": ["nombre: string"],
+    "methods": ["moverse()", "disparar()", "construir()"],
+    "perteneceA": "Equipo",
+    "elige": "Clase",
+    "coloca": "Bloque",
+    "visita": "Tienda"
+  },
+  "Clase": {
+    "type": "class",
+    "attributes": ["agilidadPlataformeo: string", "capacidadCargaBloques: int"]
+  },
+  "Bloque": {
+    "type": "class",
+    "attributes": ["destructible: bool = true", "edificable: bool = true", "superficieGUI: string"],
+    "methods": ["colocar()", "destruir()"]
+  },
+  "Tienda": {
+    "type": "class",
+    "attributes": ["armasAlternativas: string", "suministros: string"],
+    "methods": ["comprar()"]
+  }
+}
