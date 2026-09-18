@@ -1,0 +1,23 @@
+{
+  "InicioPartida": { "type": "start", "next": "Ronda1" },
+
+  "Ronda1": { "type": "process", "next": "EvaluarRonda1" },
+  "EvaluarRonda1": { "type": "decision", "true": "PuntoEquipoR1", "false": "PuntoProgresoR1" },
+  "PuntoEquipoR1": { "type": "process", "next": "Entretiempo1" },
+  "PuntoProgresoR1": { "type": "process", "next": "Entretiempo1" },
+  "Entretiempo1": { "type": "process", "next": "Ronda2" },
+
+  "Ronda2": { "type": "process", "next": "EvaluarRonda2" },
+  "EvaluarRonda2": { "type": "decision", "true": "PuntoEquipoR2", "false": "PuntoProgresoR2" },
+  "PuntoEquipoR2": { "type": "process", "next": "Entretiempo2" },
+  "PuntoProgresoR2": { "type": "process", "next": "Entretiempo2" },
+  "Entretiempo2": { "type": "process", "next": "Ronda3" },
+
+  "Ronda3": { "type": "process", "next": "EvaluarRonda3" },
+  "EvaluarRonda3": { "type": "decision", "true": "PuntoEquipoR3", "false": "PuntoProgresoR3" },
+  "PuntoEquipoR3": { "type": "process", "next": "CalcularGanador" },
+  "PuntoProgresoR3": { "type": "process", "next": "CalcularGanador" },
+
+  "CalcularGanador": { "type": "process", "next": "FinPartida" },
+  "FinPartida": { "type": "end" }
+}
