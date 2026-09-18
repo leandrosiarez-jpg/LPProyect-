@@ -29,6 +29,13 @@ El hardware del servidor se refiere a los componentes fisicos que conforman lo c
 
 Pero, ¿por qué una empresa no optaría por una plataforma de nube pública, como las que ofrecen Google o Microsoft? Si bien la comodidad es un factor importante para muchas empresas, algunas organizaciones prefieren invertir en sus propios servidores internos o soluciones de nube privada por razones específicas. Por ejemplo, podrían necesitar gestionar datos altamente sensibles que requieren la máxima seguridad. Además, ciertas aplicaciones son demasiado complejas para migrarlas a una nube pública, lo que encarece el proceso. En estos casos, poseer y operar su propio hardware de servidor permite una mayor personalización y control sobre su infraestructura digital.
 
+## ¿que diferencias hay entre de servidores y pc?
+La principal diferencia es que los servidores estan diseñados para funcionar en todo momento. utilizan: 
+
+procesadores: Los procesadores especiales los cuales cuentan con soporte para memoria ECC (error connecting code),Alto número de núcleos e hilos,Capacidad Multi-Socket( la capacidad de trabajar en conjunto con otros procesadores), mayor memoria cache. en resumen los procesadores especializados para servidores deben estar preparados para manejar multiples tareas y acciones a la vez de multiples lugares. 
+
+memoria ECC:
+
 diferencias entre servidores y pc
 cambios de disco con equipos encedido
 necesidades de placa de video 
