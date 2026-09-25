@@ -1,0 +1,7 @@
+res://Scene/map.tscn
+res://Scene/player.tscn
+res://Scene/Gun.tscn
+res://Guns/Guns.gd
+res://Scene/bullet.tscn
+res://Scene/bullet.gd
+res://Player/player.tscn
