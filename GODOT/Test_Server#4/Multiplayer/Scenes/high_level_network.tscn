@@ -1,0 +1,107 @@
+[gd_scene load_steps=3 format=3 uid="uid://d0nkv8nggb2ln"]
+
+[ext_resource type="Script" uid="uid://bsgk3d7mmrbp" path="res://Multiplayer/Scripts/high_level_network.gd" id="1_0j1pj"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.10, 0.11, 0.15, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.55, 0.95, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 10
+
+[node name="High_LevelNetwork" type="Control" unique_id=292809441]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_0j1pj")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="HintLabel" type="Label" parent="CanvasLayer"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 260.0
+offset_bottom = 36.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.75)
+theme_override_font_sizes/font_size = 14
+text = "[TAB] Ocultar menu"
+
+[node name="MenuContainer" type="CenterContainer" parent="CanvasLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="MenuPanel" type="PanelContainer" parent="CanvasLayer/MenuContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="CanvasLayer/MenuContainer/MenuPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MenuContainer/MenuPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+text = "Multijugador"
+
+[node name="Server" type="Button" parent="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+text = "Crear servidor"
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer"]
+layout_mode = 2
+
+[node name="IPInput" type="LineEdit" parent="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 36)
+placeholder_text = "IP del host (ej: 192.168.1.105)"
+
+[node name="Cliente" type="Button" parent="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+text = "Conectar como cliente"
+
+[node name="StatusLabel" type="Label" parent="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer"]
+layout_mode = 2
+autowrap_mode = 2
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+text = ""
+
+[node name="Cancelar" type="Button" parent="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(0, 36)
+theme_override_colors/font_color = Color(1, 0.75, 0.75, 1)
+text = "Cancelar"
+
+[connection signal="pressed" from="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer/Server" to="." method="_on_server_pressed"]
+[connection signal="pressed" from="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer/Cliente" to="." method="_on_cliente_pressed"]
+[connection signal="pressed" from="CanvasLayer/MenuContainer/MenuPanel/Margin/VBoxContainer/Cancelar" to="." method="_on_cancelar_pressed"]
