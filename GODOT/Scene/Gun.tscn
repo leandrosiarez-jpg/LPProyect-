@@ -1,0 +1,107 @@
+[gd_scene format=3 uid="uid://r0217qap7su8"]
+
+[ext_resource type="Script" uid="uid://cvdfil8euhrgo" path="res://Scripts/Guns.gd" id="1_1ecfw"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_loa51"]
+load_path = "res://.godot/imported/unnamed.png-8c61993819b7c578405b3e46e611c5a1.ctex"
+
+[sub_resource type="Animation" id="Animation_jft52"]
+resource_name = "Idle"
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_ylc33"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:hframes")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [2]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:texture")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("CompressedTexture2D_loa51")]
+}
+
+[sub_resource type="Animation" id="Animation_1ecfw"]
+resource_name = "disparo"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.033333335),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("CompressedTexture2D_loa51")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:hframes")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(1.4),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [2]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.03333333, 0.46666667),
+"transitions": PackedFloat32Array(1.5157194, 1),
+"update": 1,
+"values": [1, 0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_u6xw3"]
+_data = {
+&"Idle": SubResource("Animation_jft52"),
+&"RESET": SubResource("Animation_ylc33"),
+&"disparo": SubResource("Animation_1ecfw")
+}
+
+[node name="Gun" type="Node2D" unique_id=623880822]
+rotation = -0.017453292
+script = ExtResource("1_1ecfw")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1916710159]
+rotation = 0.017453292
+texture = SubResource("CompressedTexture2D_loa51")
+hframes = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite2D" unique_id=541896557]
+root_node = NodePath("../..")
+libraries/ = SubResource("AnimationLibrary_u6xw3")

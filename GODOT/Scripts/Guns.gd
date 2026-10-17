@@ -1,6 +1,7 @@
 extends Node2D
 
 const Bullet = preload("res://Scene/bullet.tscn")
+@onready var animation=$AnimatedSprite2D
 
 signal ammo_changed(current: int, max_ammo: int)
 signal reload_started
@@ -8,7 +9,7 @@ signal reload_finished
 
 var max_ammo: int = 6
 var reload_time: float = 1.5
-var cooldown_time: float = 0.5 
+var cooldown_time: float = 1.5
 
 var can_shoot: bool = true
 var current_ammo = 6
@@ -40,6 +41,7 @@ func _process(delta: float) -> void:
 
 
 func shoot() -> void:
+	$Sprite2D/AnimationPlayer.play("disparo")
 	var bullet_instance = Bullet.instantiate()
 	get_tree().root.add_child(bullet_instance)
 	bullet_instance.global_position = global_position
@@ -48,9 +50,11 @@ func shoot() -> void:
 	current_ammo -= 1
 	ammo_changed.emit(current_ammo, max_ammo)
 	
+	
 	can_shoot = false
 	await get_tree().create_timer(cooldown_time).timeout
 	can_shoot = true  
+	
 
 func reload() -> void:
 	is_reloading = true
