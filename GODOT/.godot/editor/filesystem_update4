@@ -1,0 +1,5 @@
+res://Scene/map.tscn
+res://Scripts/bullet.gd
+res://Scripts/Guns.gd
+res://Scene/block_builder.gd
+res://Scripts/block_builder.gd
