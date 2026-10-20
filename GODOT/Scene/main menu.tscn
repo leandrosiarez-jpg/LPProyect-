@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://skondp53ucrv"]
+
+[node name="MainMenu" type="Control" unique_id=1476991001]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="Control" parent="." unique_id=922028907]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Ui" type="Control" parent="." unique_id=2034447088]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MainPanel" type="Control" parent="Ui" unique_id=1121109092]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SubmenuLayer" type="Control" parent="Ui" unique_id=1562885206]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
