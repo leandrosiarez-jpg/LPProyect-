@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Test#03"
+config/name="GummyWars - alpha"
 run/main_scene="uid://tt24w7x1cutf"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
