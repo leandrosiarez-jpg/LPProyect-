@@ -1,6 +1,6 @@
 extends Node2D
 
-const SPEED: int = 300
+const SPEED: int = 950
 const LIFETIME: float = 2.0
 
 func _ready() -> void:

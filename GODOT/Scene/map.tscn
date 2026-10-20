@@ -45,6 +45,162 @@ sources/0 = SubResource("TileSetAtlasSource_ex5br")
 sources/3 = SubResource("TileSetAtlasSource_5mejs")
 sources/4 = SubResource("TileSetAtlasSource_s12we")
 
+[sub_resource type="GDScript" id="GDScript_s12we"]
+script/source = "extends Node2D
+## Permite al jugador colocar y romper bloques (tiles) para construir torres.
+## Click derecho = colocar bloque en la posición del mouse (mantener para seguir colocando)
+## Tecla Q      = romper un bloque que el jugador haya colocado
+
+signal blocks_changed(current: int, max_blocks: int)
+
+@export var tilemap: TileMapLayer            ## Si queda vacío se busca en los padres
+@export var player: CharacterBody2D          ## Si queda vacío se usa el padre
+@export var tile_source_id: int = 0          ## Source del TileSet (0 = Suelo2.png)
+@export var tile_atlas_coords: Vector2i = Vector2i(0, 0)
+@export var build_range: float = 120.0       ## Distancia máxima (en píxeles) desde el jugador
+@export var max_blocks: int = 30             ## Bloques disponibles
+@export var place_cooldown: float = 0.12     ## Tiempo entre bloques al mantener el click
+
+var blocks_left: int
+var placed_cells: Dictionary = {}            ## Solo se pueden romper los bloques puestos por el jugador
+var hover_cell: Vector2i
+var can_place_here: bool = false
+var can_break_here: bool = false
+var _cooldown: float = 0.0
+
+
+func _ready() -> void:
+	_ensure_input_actions()
+
+	if player == null:
+		player = get_parent() as CharacterBody2D
+	if tilemap == null:
+		tilemap = _find_tilemap()
+
+	if player == null or tilemap == null:
+		push_warning(\"BlockBuilder: no encontré el Player o el TileMapLayer.\")
+		set_physics_process(false)
+		return
+
+	blocks_left = max_blocks
+	blocks_changed.emit(blocks_left, max_blocks)
+
+
+func _physics_process(delta: float) -> void:
+	_cooldown = maxf(_cooldown - delta, 0.0)
+
+	hover_cell = tilemap.local_to_map(tilemap.to_local(get_global_mouse_position()))
+	can_place_here = _can_place(hover_cell)
+	can_break_here = placed_cells.has(hover_cell) and _in_range(hover_cell)
+	queue_redraw()
+
+	if Input.is_action_pressed(\"PlaceBlock\") and can_place_here and _cooldown <= 0.0:
+		_place_block(hover_cell)
+
+	if Input.is_action_just_pressed(\"BreakBlock\") and can_break_here:
+		_break_block(hover_cell)
+
+
+func _place_block(cell: Vector2i) -> void:
+	tilemap.set_cell(cell, tile_source_id, tile_atlas_coords)
+	placed_cells[cell] = true
+	blocks_left -= 1
+	_cooldown = place_cooldown
+	blocks_changed.emit(blocks_left, max_blocks)
+
+
+func _break_block(cell: Vector2i) -> void:
+	tilemap.erase_cell(cell)
+	placed_cells.erase(cell)
+	blocks_left += 1
+	blocks_changed.emit(blocks_left, max_blocks)
+
+
+# ---------- Validaciones ----------
+
+func _can_place(cell: Vector2i) -> bool:
+	if blocks_left <= 0:
+		return false
+	if tilemap.get_cell_source_id(cell) != -1:   # ya hay un tile
+		return false
+	if not _in_range(cell):
+		return false
+	if _overlaps_player(_cell_center_global(cell)):
+		return false
+	return true
+
+
+func _in_range(cell: Vector2i) -> bool:
+	return _cell_center_global(cell).distance_to(player.global_position) <= build_range
+
+
+func _overlaps_player(center: Vector2) -> bool:
+	# Evita colocar un bloque dentro del jugador (lo dejaría trabado)
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(tilemap.tile_set.tile_size) - Vector2(2, 2)
+
+	var params := PhysicsShapeQueryParameters2D.new()
+	params.shape = shape
+	params.transform = Transform2D(0.0, center)
+	params.collision_mask = player.collision_layer
+	params.collide_with_bodies = true
+
+	var hits := get_world_2d().direct_space_state.intersect_shape(params, 8)
+	for hit in hits:
+		if hit.collider == player:
+			return true
+	return false
+
+
+# ---------- Utilidades ----------
+
+func _cell_center_global(cell: Vector2i) -> Vector2:
+	return tilemap.to_global(tilemap.map_to_local(cell))
+
+
+func _find_tilemap() -> TileMapLayer:
+	var n := get_parent()
+	while n != null:
+		if n is TileMapLayer:
+			return n
+		n = n.get_parent()
+	return null
+
+
+func _ensure_input_actions() -> void:
+	# Crea las acciones por código si no las definiste en Proyecto > Ajustes > Mapa de entrada
+	if not InputMap.has_action(\"PlaceBlock\"):
+		InputMap.add_action(\"PlaceBlock\")
+		var mouse_event := InputEventMouseButton.new()
+		mouse_event.button_index = MOUSE_BUTTON_RIGHT
+		InputMap.action_add_event(\"PlaceBlock\", mouse_event)
+
+	if not InputMap.has_action(\"BreakBlock\"):
+		InputMap.add_action(\"BreakBlock\")
+		var key_event := InputEventKey.new()
+		key_event.keycode = KEY_Q
+		InputMap.action_add_event(\"BreakBlock\", key_event)
+
+
+# ---------- Vista previa ----------
+
+func _draw() -> void:
+	if tilemap == null or player == null:
+		return
+
+	var size := Vector2(tilemap.tile_set.tile_size)
+	var rect := Rect2(to_local(_cell_center_global(hover_cell)) - size / 2.0, size)
+
+	var color := Color(1.0, 0.2, 0.2, 0.35)            # rojo: no se puede
+	if can_place_here:
+		color = Color(0.2, 1.0, 0.3, 0.4)              # verde: se puede colocar
+	elif can_break_here:
+		color = Color(1.0, 0.7, 0.1, 0.4)              # naranja: se puede romper
+
+	draw_rect(rect, color)
+	draw_rect(rect, Color(color.r, color.g, color.b, 0.9), false, 1.0)
+"
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_jrym8"]
 radius = 31.400637
 
@@ -58,6 +214,10 @@ use_kinematic_bodies = true
 
 [node name="Player" parent="TileMapLayer" unique_id=1009598011 instance=ExtResource("4_31wal")]
 position = Vector2(473, 291)
+
+[node name="BlockBuilder" type="Node2D" parent="TileMapLayer/Player" unique_id=1546072348]
+position = Vector2(-572, -309)
+script = SubResource("GDScript_s12we")
 
 [node name="Gun2" parent="TileMapLayer/Player" unique_id=623880822 instance=ExtResource("5_s12we")]
 position = Vector2(18, 6)

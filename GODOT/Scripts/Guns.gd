@@ -1,7 +1,6 @@
 extends Node2D
 
 const Bullet = preload("res://Scene/bullet.tscn")
-@onready var animation=$AnimatedSprite2D
 
 signal ammo_changed(current: int, max_ammo: int)
 signal reload_started
@@ -9,7 +8,7 @@ signal reload_finished
 
 var max_ammo: int = 6
 var reload_time: float = 1.5
-var cooldown_time: float = 1.5
+var cooldown_time: float = 0.5
 
 var can_shoot: bool = true
 var current_ammo = 6
